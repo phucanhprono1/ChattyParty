@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "55706845382",
+    "project_id": "chattyparty-7d883",
+    "storage_bucket": "chattyparty-7d883.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:55706845382:android:3602d988f71c3d94bd97c7",
+        "android_client_info": {
+          "package_name": "com.example.chattyparty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "55706845382-g2vi02csg81pdfgp9s6kdhpfg4um9l3p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chattyparty",
+            "certificate_hash": "e70e4c415595bf215e2e466b634afe5a242cfb84"
+          }
+        },
+        {
+          "client_id": "55706845382-1n5bdhbm2p913diabsn8rq3sckhvd45d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwuPGNXMwm1Zxk6PyrT9hwQSpTC92ixP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "55706845382-1n5bdhbm2p913diabsn8rq3sckhvd45d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
