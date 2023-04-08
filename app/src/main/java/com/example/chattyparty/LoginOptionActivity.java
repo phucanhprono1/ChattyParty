@@ -16,34 +16,29 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class UserActivity extends AppCompatActivity {
+public class LoginOptionActivity extends AppCompatActivity {
     private CallbackManager mCallbackManager;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
+
+    private static final int REQ_ONE_TAP = 2;  // Can be any integer unique to the Activity.
+    private boolean showOneTapUI = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
+        setContentView(R.layout.activity_login_option);
 
         mAuth = FirebaseAuth.getInstance();
         LoginButton loginButton = findViewById(R.id.button_sign_in_fb);
@@ -51,7 +46,7 @@ public class UserActivity extends AppCompatActivity {
         signInPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(UserActivity.this,SignInWithPhoneNumber.class);
+                Intent i = new Intent(LoginOptionActivity.this,LoginActivity.class);
                 startActivity(i);
             }
         });
@@ -85,7 +80,16 @@ public class UserActivity extends AppCompatActivity {
                 }
             }
         };
+        findViewById(R.id.sign_in_google).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(LoginOptionActivity.this,LoginActivity.class);
+                startActivity(i);
+            }
+        });
+
     }
+
     private void goMainScreen() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -107,7 +111,7 @@ public class UserActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(UserActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginOptionActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -115,16 +119,17 @@ public class UserActivity extends AppCompatActivity {
                 });
     }
     private void updateUI(FirebaseUser user) {
-        Intent intent = new Intent( UserActivity.this, MainActivity.class);
+        Intent intent = new Intent( LoginOptionActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Pass the activity result back to the Facebook SDK
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
+
+
     }
     @Override
     protected void onStart() {

@@ -5,28 +5,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UserActivity">
+    tools:context=".LoginOptionActivity">
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/button_sign_in_fb"
         android:layout_width="299dp"
-        android:layout_height="32dp"
+        android:layout_height="40dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="132dp"
+        android:layout_marginTop="216dp"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+
     <Button
         android:id="@+id/sign_in_phone"
         android:layout_width="299dp"
-        android:layout_height="42dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="188dp"
         android:drawableLeft="@drawable/icon_phone"
         android:text="Sign In With Phone Number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/sign_in_google"
+        android:layout_width="299dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="76dp"
+        android:backgroundTint="@android:color/white"
+        android:drawableLeft="@drawable/google"
+        android:text="Sign In With Google"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_sign_in_fb" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

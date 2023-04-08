@@ -27,7 +27,7 @@
         android:layout_height="74dp"
         android:layout_marginTop="56dp"
 
-        android:text="Chat99%"
+        android:text="Chatty Party"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="40dp"

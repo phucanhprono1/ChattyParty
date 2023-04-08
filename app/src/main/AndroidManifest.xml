@@ -9,6 +9,7 @@
     </queries>
 
     <application
+        android:enableOnBackInvokedCallback="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,7 +19,13 @@
         android:theme="@style/Theme.ChattyParty"
         tools:targetApi="31">
         <activity
-            android:name=".SignInWithPhoneNumber"
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignUp"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
@@ -32,7 +39,7 @@
             android:value="@string/facebook_client_token" />
 
         <activity
-            android:name=".UserActivity"
+            android:name=".LoginOptionActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:exported="true">
             <intent-filter>
