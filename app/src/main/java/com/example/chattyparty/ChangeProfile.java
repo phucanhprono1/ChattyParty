@@ -93,7 +93,9 @@ public class ChangeProfile extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         usersRef.child(user.getUid()).child("username").setValue(username);
-                        usersRef.child(user.getUid()).child("avt").setValue(avtPath);
+                        if(!avtPath.equalsIgnoreCase("")){
+                            usersRef.child(user.getUid()).child("avt").setValue(avtPath);
+                        }
                     }
 
                     @Override
@@ -101,6 +103,8 @@ public class ChangeProfile extends AppCompatActivity {
 
                     }
                 });
+                Intent i = new Intent(ChangeProfile.this,MainActivity.class);
+                startActivity(i);
             }
         });
 
