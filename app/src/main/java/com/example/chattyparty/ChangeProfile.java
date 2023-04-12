@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,13 +16,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.chattyparty.model.User;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,101 +34,77 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.util.UUID;
 
-public class SignUp extends AppCompatActivity {
-
-    private FirebaseAuth mAuth;
-    private EditText mUsernameField;
-    private EditText mEmailField;
-    private EditText mPasswordField;
-    private Button btnChoose, btnUpload;
-    private ImageView imageView;
-    //Firebase
-    FirebaseStorage storage;
-    StorageReference storageReference;
+public class ChangeProfile extends AppCompatActivity {
     private Uri filePath;
-    private String avtPath;
-    private final int PICK_IMAGE_REQUEST = 71;
-    User user;
+    private ImageView imgAvt;
+    private String avtPath="";
+    private final int PICK_IMAGE_REQUEST = 70;
+    FirebaseStorage storage;
+    StorageReference storageRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        setContentView(R.layout.activity_change_profile);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        mAuth = FirebaseAuth.getInstance();
-        mUsernameField = findViewById(R.id.editTextUsername);
-        mEmailField = findViewById(R.id.editTextEmail1);
-        mPasswordField = findViewById(R.id.editTextPassword1);
+        EditText name = findViewById(R.id.editUsername);
+        imgAvt = findViewById(R.id.imageView3);
 
 
-        //Set avatar
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
-        //Initialize Views
-        btnChoose = (Button) findViewById(R.id.btnChoose);
-        btnUpload = (Button) findViewById(R.id.btnUpload);
-        imageView = (ImageView) findViewById(R.id.imgView);
-        Glide.with(getApplicationContext()).load("https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c").override(100,100)
-                .placeholder(R.drawable.placeholder).error(R.drawable.placeholder)
-                .into(imageView);
-        btnChoose.setOnClickListener(new View.OnClickListener() {
+        usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                chooseImage();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                name.setText(snapshot.child("username").getValue(String.class));
+                Glide.with(getApplicationContext()).load(Uri.parse(snapshot.child("avt").getValue(String.class))).override(100,100).into(imgAvt);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
 
-        btnUpload.setOnClickListener(new View.OnClickListener() {
+        Button choose = findViewById(R.id.choosePic);
+        Button upload = findViewById(R.id.upload1);
+        storage =FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        upload.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 uploadImage();
             }
         });
-
-
-        findViewById(R.id.textViewSignIn1).setOnClickListener(new View.OnClickListener() {
+        choose.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                goToLogin();
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+        findViewById(R.id.buttonSaveChange).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String username = name.getText().toString();
+                if(avtPath.equalsIgnoreCase("")){
+                    Toast.makeText(getApplicationContext(),"No avt added",Toast.LENGTH_SHORT).show();
+                }
+                usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        usersRef.child(user.getUid()).child("username").setValue(username);
+                        usersRef.child(user.getUid()).child("avt").setValue(avtPath);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
         });
 
-        findViewById(R.id.buttonRegister).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = mUsernameField.getText().toString();
-                String email = mEmailField.getText().toString();
-                String password = mPasswordField.getText().toString();
 
-
-                if (TextUtils.isEmpty(username)) {
-                    mUsernameField.setError("Username is required.");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(email)) {
-                    mEmailField.setError("Email is required.");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    mPasswordField.setError("Password is required.");
-                    return;
-                }
-
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    saveUserToFirebase(username, email);
-                                    goToMainActivity();
-                                } else {
-                                    Toast.makeText(SignUp.this, "Register failed. Please try again later.", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-            }
-        });
     }
     private void chooseImage() {
         Intent intent = new Intent();
@@ -148,7 +121,7 @@ public class SignUp extends AppCompatActivity {
             filePath = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                imageView.setImageBitmap(bitmap);
+                imgAvt.setImageBitmap(bitmap);
             }
             catch (IOException e)
             {
@@ -164,7 +137,7 @@ public class SignUp extends AppCompatActivity {
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
             String pathString ="avatar/"+ UUID.randomUUID().toString();
-            StorageReference ref = storageReference.child(pathString);
+            StorageReference ref = storageRef.child(pathString);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -196,26 +169,5 @@ public class SignUp extends AppCompatActivity {
                         }
                     });
         }
-    }
-    private void saveUserToFirebase(String username, String email) {
-        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
-        String userId = mAuth.getCurrentUser().getUid();
-
-        user = new User(userId, username, email, avtPath);
-        usersRef.child(userId).setValue(user);
-
-    }
-
-    private void goToLogin() {
-        Intent intent = new Intent(SignUp.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void goToMainActivity() {
-        Intent intent = new Intent(SignUp.this, MainActivity.class);
-        intent.putExtra("userid",user.getUserId());
-        startActivity(intent);
-        finish();
     }
 }

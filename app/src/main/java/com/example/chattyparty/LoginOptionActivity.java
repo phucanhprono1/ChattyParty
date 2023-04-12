@@ -2,6 +2,8 @@ package com.example.chattyparty;
 
 import static android.content.ContentValues.TAG;
 
+import static com.facebook.FacebookSdk.setAutoLogAppEventsEnabled;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,10 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.chattyparty.model.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,6 +29,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 
@@ -35,21 +44,16 @@ public class LoginOptionActivity extends AppCompatActivity {
 
     private static final int REQ_ONE_TAP = 2;  // Can be any integer unique to the Activity.
     private boolean showOneTapUI = true;
+    private User us;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_option);
-
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        setAutoLogAppEventsEnabled(false);
         mAuth = FirebaseAuth.getInstance();
         LoginButton loginButton = findViewById(R.id.button_sign_in_fb);
-        Button signInPhone = findViewById(R.id.sign_in_phone);
-        signInPhone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(LoginOptionActivity.this,LoginActivity.class);
-                startActivity(i);
-            }
-        });
+
         mCallbackManager = CallbackManager.Factory.create();
         loginButton.setReadPermissions(Arrays.asList("email", "public_profile"));
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
@@ -120,6 +124,23 @@ public class LoginOptionActivity extends AppCompatActivity {
     }
     private void updateUI(FirebaseUser user) {
         Intent intent = new Intent( LoginOptionActivity.this, MainActivity.class);
+        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
+        String userId = mAuth.getCurrentUser().getUid();
+
+        us = new User(userId, user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
+        usersRef.child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(!snapshot.exists()){
+                    usersRef.child(userId).setValue(user);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         startActivity(intent);
     }
 

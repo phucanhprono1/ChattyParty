@@ -105,24 +105,5 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent( LoginActivity.this, MainActivity.class);
         startActivity(intent);
     }
-//    void saveUserInfo() {
-//        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference();
-//        usersRef.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                HashMap hashUser = (HashMap) dataSnapshot.getValue();
-//                User userInfo = new User();
-//                userInfo.username = (String) hashUser.get("name");
-//                userInfo.email = (String) hashUser.get("email");
-//                userInfo.avata = (String) hashUser.get("avata");
-//                SharedPreferenceHelper.getInstance(LoginActivity.this).saveUserInfo(userInfo);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
+
 }
