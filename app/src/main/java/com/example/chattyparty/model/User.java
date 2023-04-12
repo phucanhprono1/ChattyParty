@@ -5,7 +5,7 @@ import android.net.Uri;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    public String userId;
+    public String userId,token;
     public String username;
 
     public String getUserId() {

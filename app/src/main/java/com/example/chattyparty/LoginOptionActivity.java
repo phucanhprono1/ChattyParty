@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.chattyparty.model.User;
@@ -95,7 +94,7 @@ public class LoginOptionActivity extends AppCompatActivity {
     }
 
     private void goMainScreen() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MainProfile.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
@@ -123,7 +122,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 });
     }
     private void updateUI(FirebaseUser user) {
-        Intent intent = new Intent( LoginOptionActivity.this, MainActivity.class);
+        Intent intent = new Intent( LoginOptionActivity.this, MainProfile.class);
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         String userId = mAuth.getCurrentUser().getUid();
 

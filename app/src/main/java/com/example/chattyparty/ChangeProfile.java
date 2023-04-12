@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -103,7 +102,7 @@ public class ChangeProfile extends AppCompatActivity {
 
                     }
                 });
-                Intent i = new Intent(ChangeProfile.this,MainActivity.class);
+                Intent i = new Intent(ChangeProfile.this, MainProfile.class);
                 startActivity(i);
             }
         });
