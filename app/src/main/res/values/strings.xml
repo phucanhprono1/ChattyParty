@@ -3,4 +3,17 @@
     <string name="facebook_app_id">3143502665954171</string>
     <string name="fb_login_protocol_scheme">fb3143502665954171</string>
     <string name="facebook_client_token">dfbe92dba808ae60fcd1e1191106201b</string>
+
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="login_to_continue" />
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="create_new_account">Create New Account</string>
+    <string name="add_image">Add Image</string>
+    <string name="name">Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="select_user">Select User</string>
+    <string name="type_a_message">Type a message</string>
+    <string name="online">Online</string>
 </resources>
