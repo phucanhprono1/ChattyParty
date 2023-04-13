@@ -2,6 +2,7 @@ package com.example.chattyparty.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
 import com.example.chattyparty.databinding.ItemContainerUserBinding;
 import com.example.chattyparty.listeners.UserListener;
 import com.example.chattyparty.model.User;
@@ -58,6 +60,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
         void setUserData(User user){
             binding.textName.setText(user.username);
             binding.textEmail.setText(user.email);
+            Glide.with(binding.getRoot()).load(Uri.parse(user.avt)).into(binding.imageProfile);
             binding.imageProfile.setImageBitmap(getUserImage(user.avt));
             binding.getRoot().setOnClickListener(
                     v -> userListener.onUserClicked(user)

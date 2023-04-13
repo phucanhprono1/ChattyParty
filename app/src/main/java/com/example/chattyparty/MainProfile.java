@@ -36,6 +36,13 @@ public class MainProfile extends AppCompatActivity {
         avatar = findViewById(R.id.avatar);
         Glide.with(getApplicationContext()).load("https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c")
                 .override(120,120).placeholder(R.drawable.placeholder).into(avatar);
+        avatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainProfile.this,MainActivity.class);
+                startActivity(i);
+            }
+        });
         username = findViewById(R.id.username);
         logout = (Button) findViewById(R.id.btnLogout);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

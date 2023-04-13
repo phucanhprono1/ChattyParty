@@ -2,6 +2,7 @@ package com.example.chattyparty.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
 import com.example.chattyparty.databinding.ItemContainerRecentConversionBinding;
 import com.example.chattyparty.listeners.ConversionListener;
 import com.example.chattyparty.model.ChatMessage;
@@ -54,7 +56,8 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
             binding =itemContainerRecentConversionBinding;
         }
         void setData(ChatMessage chatMessage){
-            binding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversionImage));
+            Glide.with(binding.getRoot()).load(Uri.parse(chatMessage.conversionImage)).into(binding.imageProfile);
+            //binding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversionImage));
             binding.textName.setText(chatMessage.conversionName);
             binding.textRecentMessage.setText(chatMessage.message);
             binding.getRoot().setOnClickListener(v ->{
@@ -71,13 +74,13 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
 //        byte[] bytes= Base64.decode(encodedImage,Base64.DEFAULT);
 //        return BitmapFactory.decodeByteArray(bytes,0,bytes.length);
 //    }
-private Bitmap getConversionImage(String encodedImage){
-    if (encodedImage == null) {
-        // Xử lý trường hợp encodedImage là null
-        return null;
+    private Bitmap getConversionImage(String encodedImage){
+        if (encodedImage == null) {
+            // Xử lý trường hợp encodedImage là null
+            return null;
+        }
+        byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
-    byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
-    return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-}
 
 }
