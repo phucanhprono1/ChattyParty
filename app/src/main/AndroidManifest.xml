@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <queries>
         <package android:name="com.facebook.katana" />
@@ -24,39 +25,37 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChattyParty"
         tools:targetApi="31">
-
         <activity
-            android:name=".MainActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:name=".AddFriendActivity"
             android:exported="true" />
-
-        <service
-            android:name=".firebase.MessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+        <activity
+            android:name=".AddGroupActivity"
+            android:exported="false" />
         <activity
             android:name=".ChatActivity"
-            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+
+        <service android:name="com.example.chattyparty.service.FriendChatService"
+            android:exported="false"
+            android:persistent= "true" />
+
         <activity
             android:name=".ChangeProfile"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".LoginActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ForgotPasswordActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
-        <activity
-            android:name=".SignUp"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".MainProfile"
             android:exported="false" />
@@ -71,6 +70,10 @@
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />
 
+        <activity
+            android:name=".SignUp"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".LoginOptionActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

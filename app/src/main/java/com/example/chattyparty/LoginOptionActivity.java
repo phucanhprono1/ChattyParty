@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.chattyparty.data.StaticConfig;
 import com.example.chattyparty.model.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -125,13 +126,14 @@ public class LoginOptionActivity extends AppCompatActivity {
         Intent intent = new Intent( LoginOptionActivity.this, MainProfile.class);
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         String userId = mAuth.getCurrentUser().getUid();
-
+        StaticConfig.UID = user.getUid();
         us = new User(userId, user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
+//        us.id=userId;
         usersRef.child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(!snapshot.exists()){
-                    usersRef.child(userId).setValue(user);
+                    usersRef.child(userId).setValue(us);
                 }
             }
 

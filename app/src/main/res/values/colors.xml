@@ -22,6 +22,16 @@
     <color name="icon_background">#20FFFFFF</color>
     <color name="error">#B00020</color>
     <color name="received_message_background">#090D16</color>
+    <color name="colorPrimary">#03A9F4</color>
+    <color name="colorPrimaryDark">#0288D1</color>
+    <color name="colorAccent">#4fa881</color>
+    <color name="colorIndivateTab">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="colorCardView">#f7f7f7</color>
+    <color name="grey_200">#EEEEEE</color>
+    <color name="grey_500">#a4a4a4</color>
+    <color name="grey_100">#F5F5F5</color>
+    <color name="grey_800">#212121</color>
 
 
 </resources>

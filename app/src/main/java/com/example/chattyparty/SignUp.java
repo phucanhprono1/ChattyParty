@@ -211,7 +211,7 @@ public class SignUp extends AppCompatActivity {
 
     private void goToMainActivity() {
         Intent intent = new Intent(SignUp.this, MainProfile.class);
-        intent.putExtra("userid",user.getUserId());
+
         startActivity(intent);
         finish();
     }

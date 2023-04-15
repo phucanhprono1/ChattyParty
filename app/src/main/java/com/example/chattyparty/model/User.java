@@ -1,62 +1,37 @@
 package com.example.chattyparty.model;
 
-import android.net.Uri;
 
-import java.io.Serializable;
 
-public class User implements Serializable {
-    public String userId,token;
-    public String username;
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
+public class User {
+    public String name;
     public String email;
-    public String avt;
+    public String avata;
+    public String id;
 
-    public String getAvt() {
-        return avt;
-    }
+    public Message message;
+    public Status status;
 
-    public void setAvt(String avt) {
-        this.avt = avt;
-    }
 
-    public User() {
-        // Default constructor required for calls to DataSnapshot.getValue(User.class)
-    }
-
-    public User(String userId, String username, String email, String avt) {
-        this.userId = userId;
-        this.username = username;
+    public User(String id, String name, String email, String avt) {
+        this.id = id;
+        this.name = name;
         this.email = email;
-        this.avt = avt;
+        this.avata = avt;
     }
 
-    public User(String userId, String username, String email) {
-        this.userId = userId;
-        this.username = username;
+    public User(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
         this.email = email;
+    }
+    public User(){
+        status = new Status();
+        message = new Message();
+        status.isOnline = false;
+        status.timestamp = 0;
+        message.idReceiver = "0";
+        message.idSender = "0";
+        message.text = "";
+        message.timestamp = 0;
     }
 }

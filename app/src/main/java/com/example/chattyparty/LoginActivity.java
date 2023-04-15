@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.chattyparty.data.StaticConfig;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -88,12 +89,13 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-//    private void goToMainActivity(FirebaseUser user) {
+    //    private void goToMainActivity(FirebaseUser user) {
 //        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 //        startActivity(intent);
 //        finish();
 //    }
     private void updateUI(FirebaseUser user) {
+        StaticConfig.UID = user.getUid();
         Intent intent = new Intent( LoginActivity.this, MainProfile.class);
         startActivity(intent);
     }

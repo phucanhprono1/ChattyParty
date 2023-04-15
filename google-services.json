@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "55706845382",
+    "firebase_url": "https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "chattyparty-7d883",
     "storage_bucket": "chattyparty-7d883.appspot.com"
   },
@@ -22,7 +23,7 @@
           }
         },
         {
-          "client_id": "55706845382-1n5bdhbm2p913diabsn8rq3sckhvd45d.apps.googleusercontent.com",
+          "client_id": "55706845382-lofv38ng92n5qsbnkk66pfn7ujhprrb2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

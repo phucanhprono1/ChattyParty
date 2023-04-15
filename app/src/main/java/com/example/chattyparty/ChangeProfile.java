@@ -56,7 +56,7 @@ public class ChangeProfile extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 name.setText(snapshot.child("username").getValue(String.class));
-                Glide.with(getApplicationContext()).load(Uri.parse(snapshot.child("avt").getValue(String.class))).override(100,100).into(imgAvt);
+                Glide.with(getApplicationContext()).load(Uri.parse(snapshot.child("avata").getValue(String.class))).override(100,100).into(imgAvt);
             }
 
             @Override
@@ -93,7 +93,7 @@ public class ChangeProfile extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         usersRef.child(user.getUid()).child("username").setValue(username);
                         if(!avtPath.equalsIgnoreCase("")){
-                            usersRef.child(user.getUid()).child("avt").setValue(avtPath);
+                            usersRef.child(user.getUid()).child("avata").setValue(avtPath);
                         }
                     }
 

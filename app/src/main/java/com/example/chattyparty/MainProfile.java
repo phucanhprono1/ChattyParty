@@ -57,9 +57,9 @@ public class MainProfile extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String name = dataSnapshot.child("username").getValue(String.class);
+                    String name = dataSnapshot.child("name").getValue(String.class);
                     username.setText(name);
-                    String tmp=dataSnapshot.child("avt").getValue(String.class);
+                    String tmp=dataSnapshot.child("avata").getValue(String.class);
 //                    Uri avt =  Uri.parse(tmp);
                     Glide.with(getApplicationContext()).load(tmp).override(150,150)
                             .placeholder(R.drawable.placeholder)
