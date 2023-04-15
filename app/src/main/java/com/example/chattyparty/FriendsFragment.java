@@ -448,12 +448,12 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         intent.putExtra(StaticConfig.STR_DEFAULT_BASE64,avata);
 
 //                        ChatActivity.bitmapAvataFriend = new HashMap<>();
-//                        if (!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
-//                            byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
-//                            ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
-//                        } else {
-//                            ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
-//                        }
+//                       if (!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+////                            byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
+////                            ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
+////                        } else {
+////                            ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
+////                        }
 
                         mapMark.put(id, null);
                         fragment.startActivityForResult(intent, FriendsFragment.ACTION_START_CHAT);
@@ -683,16 +683,16 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 }
             });
-        }
-//        else {
+        } else {
+            Toast.makeText(context,"Error occurred during deleting friend",Toast.LENGTH_SHORT);
 //            dialogWaitDeleting.dismiss();
 //            new LovelyInfoDialog(context)
 //                    .setTopColorRes(R.color.colorPrimary)
 //                    .setTitle("Error")
-//                    .setMessage("Error occurred during deleting friend")
+//                    .setMessage()
 //                    .show();
 //        }
-//    }
+    }
 }
 
 class ItemFriendViewHolder extends RecyclerView.ViewHolder{
