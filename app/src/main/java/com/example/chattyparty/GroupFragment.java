@@ -55,6 +55,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public static final int REQUEST_EDIT_GROUP = 0;
     public static final String CONTEXT_MENU_KEY_INTENT_DATA_POS = "pos";
     public FriendDB friendDB;
+    public GroupDB groupDB;
 
 //    LovelyProgressDialog progressDialog, waitingLeavingGroup;
 
@@ -72,7 +73,8 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                              Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_group, container, false);
         friendDB = new FriendDB(getContext());
-        listGroup = GroupDB.getInstance(getContext()).getListGroups();
+        groupDB = new GroupDB(getContext());
+        listGroup = groupDB.getListGroups();
         recyclerListGroups = (RecyclerView) layout.findViewById(R.id.recycleListGroup);
         mSwipeRefreshLayout = (SwipeRefreshLayout) layout.findViewById(R.id.swipeRefreshLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -134,7 +136,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if(requestCode == REQUEST_EDIT_GROUP && resultCode == Activity.RESULT_OK) {
             listGroup.clear();
             ListGroupsAdapter.listFriend = null;
-            GroupDB.getInstance(getContext()).dropDB();
+            groupDB.dropDB();
             getListGroup();
         }
     }
@@ -157,7 +159,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         listGroup.get(indexGroup).groupInfo.put("name", (String) mapGroupInfo.get("name"));
                         listGroup.get(indexGroup).groupInfo.put("admin", (String) mapGroupInfo.get("admin"));
                     }
-                    GroupDB.getInstance(getContext()).addGroup(listGroup.get(indexGroup));
+                    groupDB.addGroup(listGroup.get(indexGroup));
                     Log.d("GroupFragment", listGroup.get(indexGroup).id +": " + dataSnapshot.toString());
                     getGroupInfo(indexGroup +1);
                 }
@@ -174,7 +176,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public void onRefresh() {
         listGroup.clear();
         ListGroupsAdapter.listFriend = null;
-        GroupDB.getInstance(getContext()).dropDB();
+        groupDB.dropDB();
         adapter.notifyDataSetChanged();
         getListGroup();
     }
@@ -229,7 +231,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 //                            progressDialog.dismiss();
-                            GroupDB.getInstance(getContext()).deleteGroup(group.id);
+                            groupDB.deleteGroup(group.id);
                             listGroup.remove(group);
                             adapter.notifyDataSetChanged();
                             Toast.makeText(getContext(), "Deleted group", Toast.LENGTH_SHORT).show();
@@ -312,23 +314,14 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
                                             listGroup.remove(group);
                                             adapter.notifyDataSetChanged();
-                                            GroupDB.getInstance(getContext()).deleteGroup(group.id);
-//                                           // new LovelyInfoDialog(getContext())
-//                                                    .setTopColorRes(R.color.colorAccent)
-//                                                    .setTitle("Success")
-//                                                    .setMessage("Group leaving successfully")
-//                                                    .show();
+                                            groupDB.deleteGroup(group.id);
+//
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-//                                            waitingLeavingGroup.dismiss();
-//                                            new LovelyInfoDialog(getContext())
-//                                                    .setTopColorRes(R.color.colorAccent)
-//                                                    .setTitle("Error")
-//                                                    .setMessage("Error occurred during leaving group")
-//                                                    .show();
+//
                                         }
                                     });
                         }
@@ -336,13 +329,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        //email not found
-//                        waitingLeavingGroup.dismiss();
-//                        new LovelyInfoDialog(getContext())
-//                                .setTopColorRes(R.color.colorAccent)
-//                                .setTitle("Error")
-//                                .setMessage("Error occurred during leaving group")
-//                                .show();
+
                     }
                 });
 
@@ -381,7 +368,7 @@ class ListGroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final String groupName = listGroup.get(position).groupInfo.get("name");
         friendDB = new FriendDB(context);
         if(groupName != null && groupName.length() > 0) {

@@ -51,12 +51,14 @@ public class AddGroupActivity extends AppCompatActivity {
     private boolean isEditGroup;
     private Group groupEdit;
     FriendDB friendDB;
+    GroupDB groupDB;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_group);
         friendDB = new FriendDB(getBaseContext());
+        groupDB = new GroupDB(getBaseContext());
         Intent intentData = getIntent();
         txtActionName = (TextView) findViewById(R.id.txtActionName);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -113,7 +115,7 @@ public class AddGroupActivity extends AppCompatActivity {
             String idGroup = intentData.getStringExtra("groupId");
             txtActionName.setText("Save");
             btnAddGroup.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-            groupEdit = GroupDB.getInstance(this).getGroup(idGroup);
+            groupEdit = groupDB.getGroup(idGroup);
             editTextGroupName.setText(groupEdit.groupInfo.get("name"));
         } else {
             isEditGroup = false;

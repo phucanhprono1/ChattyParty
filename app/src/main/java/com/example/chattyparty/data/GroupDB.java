@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.util.Log;
+import android.widget.Toast;
 
 
 import com.example.chattyparty.model.Group;
@@ -14,26 +16,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GroupDB {
-    private static GroupDBHelper mDbHelper = null;
+public class GroupDB extends SQLiteOpenHelper{
 
+    static final int DATABASE_VERSION = 1;
     // To prevent someone from accidentally instantiating the contract class,
     // make the constructor private.
-    private GroupDB() {
+    private Context context;
+    static final String DATABASE_NAME = "GroupChat.db";
+    public GroupDB(Context context) {
+        super(context, DATABASE_NAME,null,1);
+        Log.d("DB Manager","DB Manager");
+
+        this.context=context;
     }
 
     private static GroupDB instance = null;
 
-    public static GroupDB getInstance(Context context) {
-        if (instance == null) {
-            instance = new GroupDB();
-            mDbHelper = new GroupDBHelper(context);
-        }
-        return instance;
-    }
+//    public static GroupDB getInstance(Context context) {
+//        if (instance == null) {
+//            instance = new GroupDB();
+//            mDbHelper = new GroupDBHelper(context);
+//        }
+//        return instance;
+//    }
 
     public void addGroup(Group group) {
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(FeedEntry.COLUMN_GROUP_ID, group.id);
@@ -48,7 +56,7 @@ public class GroupDB {
     }
 
     public void deleteGroup(String idGroup){
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         db.delete(FeedEntry.TABLE_NAME, FeedEntry.COLUMN_GROUP_ID + " = " + idGroup , null);
     }
 
@@ -60,7 +68,7 @@ public class GroupDB {
     }
 
     public Group getGroup(String id){
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + FeedEntry.TABLE_NAME + " where " + FeedEntry.COLUMN_GROUP_ID +" = " + id, null);
         Group newGroup = new Group();
         while (cursor.moveToNext()) {
@@ -79,7 +87,7 @@ public class GroupDB {
     public ArrayList<Group> getListGroups() {
         Map<String, Group> mapGroup = new HashMap<>();
         ArrayList<String> listKey = new ArrayList<>();
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         try {
@@ -115,9 +123,21 @@ public class GroupDB {
     }
 
     public void dropDB() {
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(SQL_DELETE_ENTRIES);
         db.execSQL(SQL_CREATE_ENTRIES);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_ENTRIES);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL(SQL_DELETE_ENTRIES);
+        onCreate(db);
+        Toast.makeText(context, "Drop successfully", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -144,28 +164,28 @@ public class GroupDB {
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
 
 
-    private static class GroupDBHelper extends SQLiteOpenHelper {
-        // If you change the database schema, you must increment the database version.
-        static final int DATABASE_VERSION = 1;
-        static final String DATABASE_NAME = "GroupChat.db";
-
-        GroupDBHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(SQL_CREATE_ENTRIES);
-        }
-
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // This database is only a cache for online data, so its upgrade policy is
-            // to simply to discard the data and start over
-            db.execSQL(SQL_DELETE_ENTRIES);
-            onCreate(db);
-        }
-
-        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onUpgrade(db, oldVersion, newVersion);
-        }
-    }
+//    private static class GroupDBHelper extends SQLiteOpenHelper {
+//        // If you change the database schema, you must increment the database version.
+//        static final int DATABASE_VERSION = 1;
+//        static final String DATABASE_NAME = "GroupChat.db";
+//
+//        GroupDBHelper(Context context) {
+//            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+//        }
+//
+//        public void onCreate(SQLiteDatabase db) {
+//            db.execSQL(SQL_CREATE_ENTRIES);
+//        }
+//
+//        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+//            // This database is only a cache for online data, so its upgrade policy is
+//            // to simply to discard the data and start over
+//            db.execSQL(SQL_DELETE_ENTRIES);
+//            onCreate(db);
+//        }
+//
+//        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+//            onUpgrade(db, oldVersion, newVersion);
+//        }
+//    }
 }

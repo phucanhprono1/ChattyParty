@@ -52,7 +52,7 @@ public class FriendChatService extends Service {
     public ArrayList<Group> listGroup;
     public CountDownTimer updateOnline;
     public FriendDB friendDB;
-
+    public GroupDB groupDB;
     public FriendChatService() {
     }
 
@@ -60,12 +60,13 @@ public class FriendChatService extends Service {
     @Override
     public void onCreate() {
         friendDB = new FriendDB(getBaseContext());
+        groupDB = new GroupDB(getBaseContext());
         super.onCreate();
         mapMark = new HashMap<>();
         mapQuery = new HashMap<>();
         mapChildEventListenerMap = new HashMap<>();
         listFriend = friendDB.getListFriend();
-        listGroup = GroupDB.getInstance(this).getListGroups();
+        listGroup = groupDB.getListGroups();
         listKey = new ArrayList<>();
         mapBitmap = new HashMap<>();
         updateOnline = new CountDownTimer(System.currentTimeMillis(), StaticConfig.TIME_TO_REFRESH) {
