@@ -244,7 +244,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             user.avata = (String) userMap.get("avata");
                             user.id = id;
                             user.idRoom = id.compareTo(StaticConfig.UID) > 0 ? (StaticConfig.UID + id).hashCode() + "" : "" + (id + StaticConfig.UID).hashCode();
-                            checkBeforAddFriend(id, user);
+                            checkBeforeAddFriend(id, user);
                         }
                     }
                 }
@@ -259,7 +259,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         /**
          * Lay danh sach friend cua một UID
          */
-        private void checkBeforAddFriend(final String idFriend, Friend userInfo) {
+        private void checkBeforeAddFriend(final String idFriend, Friend userInfo) {
 
 
             //Check xem da ton tai id trong danh sach id chua
@@ -679,13 +679,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         } else {
             Toast.makeText(context,"Error occurred during deleting friend",Toast.LENGTH_SHORT);
-//            dialogWaitDeleting.dismiss();
-//            new LovelyInfoDialog(context)
-//                    .setTopColorRes(R.color.colorPrimary)
-//                    .setTitle("Error")
-//                    .setMessage()
-//                    .show();
-//        }
+
     }
 }
 
