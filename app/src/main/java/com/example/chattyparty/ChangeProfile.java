@@ -55,7 +55,7 @@ public class ChangeProfile extends AppCompatActivity {
         usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                name.setText(snapshot.child("username").getValue(String.class));
+                name.setText(snapshot.child("name").getValue(String.class));
                 Glide.with(getApplicationContext()).load(Uri.parse(snapshot.child("avata").getValue(String.class))).override(100,100).into(imgAvt);
             }
 
@@ -91,7 +91,7 @@ public class ChangeProfile extends AppCompatActivity {
                 usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        usersRef.child(user.getUid()).child("username").setValue(username);
+                        usersRef.child(user.getUid()).child("name").setValue(username);
                         if(!avtPath.equalsIgnoreCase("")){
                             usersRef.child(user.getUid()).child("avata").setValue(avtPath);
                         }
