@@ -181,7 +181,7 @@ public class AddGroupActivity extends AppCompatActivity {
             setResult(RESULT_OK, null);
             AddGroupActivity.this.finish();
         } else {
-            FirebaseDatabase.getInstance().getReference().child("user/" + listIDRemove.toArray()[userIndex] + "/group/" + roomId).removeValue()
+            FirebaseDatabase.getInstance().getReference().child("users/" + listIDRemove.toArray()[userIndex] + "/group/" + roomId).removeValue()
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -208,7 +208,7 @@ public class AddGroupActivity extends AppCompatActivity {
                 deleteRoomForUser(roomId, 0);
             }
         } else {
-            FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("user/" + listIDChoose.toArray()[userIndex] + "/group/" + roomId).setValue(roomId).addOnCompleteListener(new OnCompleteListener<Void>() {
+            FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("users/" + listIDChoose.toArray()[userIndex] + "/group/" + roomId).setValue(roomId).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     addRoomForUser(roomId, userIndex + 1);

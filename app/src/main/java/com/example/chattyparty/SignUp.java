@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Pattern;
+
 import android.Manifest;
 
 public class SignUp extends AppCompatActivity {
@@ -65,6 +67,8 @@ public class SignUp extends AppCompatActivity {
     private final int REQUEST_CODE=1000;
     private static final int PERMISSION_CODE = 1000;
     private static final int IMAGE_CAMERA_CODE = 1001;
+    private final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +86,7 @@ public class SignUp extends AppCompatActivity {
         //Initialize Views
         btnChoose = (Button) findViewById(R.id.btnChoose);
         btnCamera = (ImageButton) findViewById(R.id.btnCamera);
-        btnUpload = (Button) findViewById(R.id.btnUpload);
+//        btnUpload = (Button) findViewById(R.id.btnUpload);
         imageView = (ImageView) findViewById(R.id.imgView);
         Glide.with(getApplicationContext()).load("https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c").override(100,100)
                 .placeholder(R.drawable.placeholder).error(R.drawable.placeholder)
@@ -101,12 +105,12 @@ public class SignUp extends AppCompatActivity {
             }
         });
         ImageButton camera = findViewById(R.id.btnCamera);
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                uploadImage();
-            }
-        });
+//        btnUpload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                uploadImage();
+//            }
+//        });
 
 
         findViewById(R.id.textViewSignIn1).setOnClickListener(new View.OnClickListener() {
@@ -208,6 +212,43 @@ public class SignUp extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imageView.setImageBitmap(bitmap);
+                final ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setTitle("Uploading...");
+                progressDialog.show();
+                String fileName = "avatar_" + System.currentTimeMillis() + ".jpg";
+                StorageReference storageRef = storageReference.child("avatar/" + fileName);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] dataBytes = baos.toByteArray();
+                UploadTask uploadTask = storageRef.putBytes(dataBytes);
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                avtPath = uri.toString();
+                                filePath = uri;
+                            }
+                        });
+                    }
+
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(SignUp.this, "Upload failed. Please try again later.", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+
+                    @Override
+                    public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                        double progress = (100.0 * snapshot.getBytesTransferred() / snapshot.getTotalByteCount());
+                        progressDialog.setMessage("Uploaded " + (int)progress + "%");
+                    }
+                });
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -238,6 +279,20 @@ public class SignUp extends AppCompatActivity {
                             filePath = uri;
                         }
                     });
+                }
+
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    progressDialog.dismiss();
+                    Toast.makeText(SignUp.this, "Upload failed. Please try again later.", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                    double progress = (100.0 * snapshot.getBytesTransferred() / snapshot.getTotalByteCount());
+                    progressDialog.setMessage("Uploaded " + (int)progress + "%");
                 }
             });
         }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context=".SignUp">
 
     <LinearLayout
@@ -22,52 +23,40 @@
 
         <LinearLayout
             android:id="@+id/layout_button"
-            android:orientation="horizontal"
-
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/imgView"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_marginLeft="20dp"
+                android:layout_margin="20dp"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginTop="20dp">
 
                 <Button
                     android:id="@+id/btnChoose"
-                    android:text="Choose"
-                    android:textSize="10dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginLeft="30dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:text="Choose Image"
+                    android:textSize="10dp" />
 
                 <ImageButton
                     android:id="@+id/btnCamera"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
+                    android:layout_margin="20dp"
                     android:minHeight="48dp"
 
                     app:srcCompat="@drawable/ic_action_camera" />
             </LinearLayout>
-
-
-            <Button
-                android:id="@+id/btnUpload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="30dp"
-                android:text="Upload"
-                android:textSize="10dp"
-                tools:ignore="TextSizeCheck" />
 
 
         </LinearLayout>
@@ -79,6 +68,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginTop="60dp"
             android:layout_marginRight="40dp"
+            android:background="@drawable/round_edittext"
             android:hint="Username"
             android:inputType="text"
             android:minHeight="48dp" />
@@ -91,6 +81,7 @@
             android:layout_marginTop="30dp"
             android:layout_marginRight="40dp"
             android:hint="Email"
+            android:background="@drawable/round_edittext"
             android:inputType="textEmailAddress"
             android:minHeight="48dp" />
 
@@ -101,12 +92,14 @@
             android:layout_marginLeft="40dp"
             android:layout_marginTop="30dp"
             android:layout_marginRight="40dp"
+            android:background="@drawable/round_edittext"
             android:hint="Password"
             android:inputType="textPassword"
             android:minHeight="48dp" />
 
         <EditText
             android:id="@+id/repassword"
+            android:background="@drawable/round_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
@@ -120,6 +113,7 @@
             android:id="@+id/buttonRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/round_edittext"
             android:text="Register"
             android:layout_marginTop="30dp"
             android:layout_marginLeft="40dp"
