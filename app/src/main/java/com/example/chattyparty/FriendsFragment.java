@@ -272,6 +272,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
 //
             } else {
+                addFriendRequest(idFriend);
                 addFriend(idFriend, true);
                 listFriendID.add(idFriend);
                 dataListFriend.getListFriend().add(userInfo);
@@ -279,7 +280,34 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 adapter.notifyDataSetChanged();
             }
         }
+        private void addFriendRequest(final String idFriend) {
+            if (idFriend != null) {
+                DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
+                String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                HashMap<String, Object> friendRequestMap = new HashMap<>();
+                friendRequestMap.put("sender", currentUserID);
+                friendRequestMap.put("receiver", idFriend);
+                friendRequestMap.put("status", "pending");
 
+                friendRequestRef.push().setValue(friendRequestMap)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getContext(), "Friend request sent", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            }
+        }
         /**
          * Add friend
          *
@@ -450,7 +478,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 ////                            byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
                             ChatActivity.bitmapAvataFriend.put(id, avata);
                         } else {
-                            ChatActivity.bitmapAvataFriend.put(id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c");
+                            ChatActivity.bitmapAvataFriend.put(id, StaticConfig.STR_DEFAULT_URI);
                         }
 
                         mapMark.put(id, null);
@@ -561,7 +589,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
         if (listFriend.getListFriend().get(position).avata.equals(StaticConfig.STR_DEFAULT_URI)) {
-            ((ItemFriendViewHolder) holder).avata.setImageResource(R.drawable.default_avata);
+            Glide.with(holder.itemView).load(StaticConfig.STR_DEFAULT_URI).into(((ItemFriendViewHolder) holder).avata);
         } else {
 
 //            byte[] decodedString = Base64.decode(listFriend.getListFriend().get(position).avata, Base64.DEFAULT);
@@ -649,13 +677,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-//                                        dialogWaitDeleting.dismiss();
-//
-//                                        new LovelyInfoDialog(context)
-//                                                .setTopColorRes(R.color.colorAccent)
-//                                                .setTitle("Success")
-//                                                .setMessage("Friend deleting successfully")
-//                                                .show();
+                                                Toast.makeText(context, "Deleted friend", Toast.LENGTH_SHORT);
 
                                                 Intent intentDeleted = new Intent(FriendsFragment.ACTION_DELETE_FRIEND);
                                                 intentDeleted.putExtra("idFriend", idFriend);
@@ -665,12 +687,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-//                                        dialogWaitDeleting.dismiss();
-//                                        new LovelyInfoDialog(context)
-//                                                .setTopColorRes(R.color.colorAccent)
-//                                                .setTitle("Error")
-//                                                .setMessage("Error occurred during deleting friend")
-//                                                .show();
+
                                             }
                                         });
                             }

@@ -1,12 +1,26 @@
 package com.example.chattyparty;
 
+import static android.content.ContentValues.TAG;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +30,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,9 +44,12 @@ import com.example.chattyparty.data.SharedPreferenceHelper;
 import com.example.chattyparty.data.StaticConfig;
 import com.example.chattyparty.model.Consersation;
 import com.example.chattyparty.model.Message;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -57,7 +78,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         roomId = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_ROOM_ID);
         String nameFriend = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_FRIEND);
         String avataFriend = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_AVATA);
-
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
+//        String deviceToken = FirebaseInstanceId.getInstance().getToken();
         consersation = new Consersation();
         btnSend = (ImageView) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(this);
@@ -67,7 +89,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             bitmapAvataUser = avtUser;
         } else {
-            bitmapAvataUser = null;
+            bitmapAvataUser = StaticConfig.STR_DEFAULT_URI;
         }
 
         editWriteMessage = (EditText) findViewById(R.id.editWriteMessage);
@@ -90,6 +112,39 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         consersation.getListMessageData().add(newMessage);
                         adapter.notifyDataSetChanged();
                         linearLayoutManager.scrollToPosition(consersation.getListMessageData().size() - 1);
+                        // Send a push notification to the user
+                        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        if (!newMessage.idSender.equals(currentUserId)) {
+                            // Create the notification payload
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
+                            builder.setSmallIcon(R.drawable.ic_notification);
+                            builder.setContentTitle("New Message");
+                            builder.setContentText(newMessage.text);
+                            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+
+                            // Create the notification channel (required for Android Oreo and above)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
+                                NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                                notificationManager.createNotificationChannel(channel);
+                            }
+
+                            // Send the notification
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
+                            }
+                            notificationManager.notify(0, builder.build());
+
+                        }
                     }
                 }
 
@@ -201,7 +256,7 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //                                    byte[] decodedString = Base64.decode(avataStr, Base64.DEFAULT);
                                     ChatActivity.bitmapAvataFriend.put(id, avataStr);
                                 }else{
-                                    ChatActivity.bitmapAvataFriend.put(id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c");
+                                    ChatActivity.bitmapAvataFriend.put(id, StaticConfig.STR_DEFAULT_URI);
                                 }
                                 notifyDataSetChanged();
                             }

@@ -375,7 +375,7 @@ class ListGroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         ChatActivity.bitmapAvataFriend.put(id, avata);
                     }else if(avata.equals(StaticConfig.STR_DEFAULT_URI)) {
 
-                        ChatActivity.bitmapAvataFriend.put(id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c");
+                        ChatActivity.bitmapAvataFriend.put(id, StaticConfig.STR_DEFAULT_URI);
                     }else {
                         ChatActivity.bitmapAvataFriend.put(id, null);
                     }
