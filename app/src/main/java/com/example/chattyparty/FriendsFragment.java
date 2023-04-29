@@ -75,7 +75,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     DatabaseReference userRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
     DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
 
-    DatabaseReference messageRef = FirebaseDatabase.getInstance("https://chattychattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("message");
+    DatabaseReference messageRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("message");
     private BroadcastReceiver deleteFriendReceiver;
 
     public FriendsFragment() {
@@ -445,13 +445,13 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         intent.putExtra(StaticConfig.INTENT_KEY_CHAT_ROOM_ID, idRoom);
                         intent.putExtra(StaticConfig.STR_DEFAULT_BASE64, avata);
 
-//                        ChatActivity.bitmapAvataFriend = new HashMap<>();
-//                       if (!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+                        ChatActivity.bitmapAvataFriend = new HashMap<>();
+                        if (!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
 ////                            byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
-////                            ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
-////                        } else {
-////                            ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
-////                        }
+                            ChatActivity.bitmapAvataFriend.put(id, avata);
+                        } else {
+                            ChatActivity.bitmapAvataFriend.put(id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c");
+                        }
 
                         mapMark.put(id, null);
                         fragment.startActivityForResult(intent, FriendsFragment.ACTION_START_CHAT);
@@ -566,8 +566,8 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 //            byte[] decodedString = Base64.decode(listFriend.getListFriend().get(position).avata, Base64.DEFAULT);
 //            Bitmap src = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-//            ((ItemFriendViewHolder) holder).avata.setImageBitmap(src);
-            Glide.with(context).load(Uri.parse(avata)).into(((ItemFriendViewHolder) holder).avata);
+            Glide.with(holder.itemView).load(Uri.parse(listFriend.getListFriend().get(position).avata)).into(((ItemFriendViewHolder) holder).avata);
+
         }
 
 
