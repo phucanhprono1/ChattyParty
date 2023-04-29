@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
 import com.example.chattyparty.data.FriendDB;
 import com.example.chattyparty.data.GroupDB;
 import com.example.chattyparty.data.StaticConfig;
@@ -57,7 +58,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     public FriendDB friendDB;
     public GroupDB groupDB;
 
-//    LovelyProgressDialog progressDialog, waitingLeavingGroup;
+
 
     public GroupFragment() {
         // Required empty public constructor
@@ -83,17 +84,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         adapter = new ListGroupsAdapter(getContext(), listGroup);
         recyclerListGroups.setAdapter(adapter);
         onClickFloatButton = new FragGroupClickFloatButton();
-//        progressDialog = new LovelyProgressDialog(getContext())
-//                .setCancelable(false)
-//                .setIcon(R.drawable.ic_dialog_delete_group)
-//                .setTitle("Deleting....")
-//                .setTopColorRes(R.color.colorAccent);
 
-//        waitingLeavingGroup = new LovelyProgressDialog(getContext())
-//                .setCancelable(false)
-//                .setIcon(R.drawable.ic_dialog_delete_group)
-//                .setTitle("Group leaving....")
-//                .setTopColorRes(R.color.colorAccent);
 
         if(listGroup.size() == 0){
             //Ket noi server hien thi group
@@ -186,7 +177,9 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
         switch (item.getItemId()) {
             case CONTEXT_MENU_DELETE:
-                int posGroup = item.getIntent().getIntExtra(CONTEXT_MENU_KEY_INTENT_DATA_POS, -1);
+                Intent i = item.getIntent();
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                int posGroup = i.getIntExtra(CONTEXT_MENU_KEY_INTENT_DATA_POS, -1);
                 if(((String)listGroup.get(posGroup).groupInfo.get("admin")).equals(StaticConfig.UID)) {
                     Group group = listGroup.get(posGroup);
                     listGroup.remove(posGroup);
@@ -198,10 +191,13 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 }
                 break;
             case CONTEXT_MENU_EDIT:
-                int posGroup1 = item.getIntent().getIntExtra(CONTEXT_MENU_KEY_INTENT_DATA_POS, -1);
+                Intent i1 = item.getIntent();
+                i1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                int posGroup1 = i1.getIntExtra(CONTEXT_MENU_KEY_INTENT_DATA_POS, -1);
                 if(((String)listGroup.get(posGroup1).groupInfo.get("admin")).equals(StaticConfig.UID)) {
                     Intent intent = new Intent(getContext(), AddGroupActivity.class);
                     intent.putExtra("groupId", listGroup.get(posGroup1).id);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivityForResult(intent, REQUEST_EDIT_GROUP);
                 }else{
                     Toast.makeText(getActivity(), "You are not admin", Toast.LENGTH_LONG).show();
@@ -210,7 +206,9 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 break;
 
             case CONTEXT_MENU_LEAVE:
-                int position = item.getIntent().getIntExtra(CONTEXT_MENU_KEY_INTENT_DATA_POS, -1);
+                Intent intent = item.getIntent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                int position = intent.getIntExtra(CONTEXT_MENU_KEY_INTENT_DATA_POS, -1);
                 if(((String)listGroup.get(position).groupInfo.get("admin")).equals(StaticConfig.UID)) {
                     Toast.makeText(getActivity(), "Admin cannot leave group", Toast.LENGTH_LONG).show();
                 }else{
@@ -230,7 +228,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-//                            progressDialog.dismiss();
+
                             groupDB.deleteGroup(group.id);
                             listGroup.remove(group);
                             adapter.notifyDataSetChanged();
@@ -240,15 +238,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-//                            progressDialog.dismiss();
-//                            new LovelyInfoDialog(getContext())
-//                                    .setTopColorRes(R.color.colorAccent)
-//                                    .setIcon(R.drawable.ic_dialog_delete_group)
-//                                    .setTitle("False")
-//                                    .setMessage("Cannot delete group right now, please try again.")
-//                                    .setCancelable(false)
-//                                    .setConfirmButtonText("Ok")
-//                                    .show();
+
                         }
                     })
                     ;
@@ -391,19 +381,21 @@ class ListGroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra(StaticConfig.INTENT_KEY_CHAT_FRIEND, groupName);
                 ArrayList<CharSequence> idFriend = new ArrayList<>();
-//                ChatActivity.bitmapAvataFriend = new HashMap<>();
-//                for(String id : listGroup.get(position).member) {
-//                    idFriend.add(id);
-//                    String avata = listFriend.getAvataById(id);
-//                    if(!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
-//                        byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
-//                        ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
-//                    }else if(avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
-//                        ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
-//                    }else {
-//                        ChatActivity.bitmapAvataFriend.put(id, null);
-//                    }
-//                }
+                ChatActivity.bitmapAvataFriend = new HashMap<>();
+                for(String id : listGroup.get(position).member) {
+                    idFriend.add(id);
+                    String avata = listFriend.getAvataById(id);
+                    if(!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+                       // byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
+                        //ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
+                        ChatActivity.bitmapAvataFriend.put(id, avata);
+                    }else if(avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+                        //ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
+                        ChatActivity.bitmapAvataFriend.put(id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c");
+                    }else {
+                        ChatActivity.bitmapAvataFriend.put(id, null);
+                    }
+                }
                 intent.putCharSequenceArrayListExtra(StaticConfig.INTENT_KEY_CHAT_ID, idFriend);
                 intent.putExtra(StaticConfig.INTENT_KEY_CHAT_ROOM_ID, listGroup.get(position).id);
                 context.startActivity(intent);
