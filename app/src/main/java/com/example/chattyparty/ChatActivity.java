@@ -2,13 +2,11 @@ package com.example.chattyparty;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Base64;
+
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,7 +63,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         btnSend.setOnClickListener(this);
 
         String avtUser = SharedPreferenceHelper.getInstance(this).getUserInfo().avata;
-        if (!avtUser.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+        if (!avtUser.equals(StaticConfig.STR_DEFAULT_URI)) {
 
             bitmapAvataUser = avtUser;
         } else {
@@ -199,7 +197,7 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() != null) {
                                 String avataStr = (String) dataSnapshot.getValue();
-                                if(!avataStr.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+                                if(!avataStr.equals(StaticConfig.STR_DEFAULT_URI)) {
 //                                    byte[] decodedString = Base64.decode(avataStr, Base64.DEFAULT);
                                     ChatActivity.bitmapAvataFriend.put(id, avataStr);
                                 }else{

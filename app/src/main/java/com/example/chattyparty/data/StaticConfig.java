@@ -9,7 +9,7 @@ public class StaticConfig {
     public static String STR_EXTRA_ACTION = "action";
     public static String STR_EXTRA_USERNAME = "username";
     public static String STR_EXTRA_PASSWORD = "password";
-    public static String STR_DEFAULT_BASE64 = "default";
+    public static String STR_DEFAULT_URI = "default";
     public static String UID = "";
     //TODO only use this UID for debug mode
 //    public static String UID = "6kU0SbJPF5QJKZTfvW1BqKolrx22";

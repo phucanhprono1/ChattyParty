@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
 import com.example.chattyparty.data.FriendDB;
 import com.example.chattyparty.data.GroupDB;
 import com.example.chattyparty.data.StaticConfig;
@@ -253,15 +252,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-//                            progressDialog.dismiss();
-//                            new LovelyInfoDialog(getContext())
-//                                    .setTopColorRes(R.color.colorAccent)
-//                                    .setIcon(R.drawable.ic_dialog_delete_group)
-//                                    .setTitle("False")
-//                                    .setMessage("Cannot connect server")
-//                                    .setCancelable(false)
-//                                    .setConfirmButtonText("Ok")
-//                                    .show();
+
                         }
                     })
             ;
@@ -277,13 +268,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         if (dataSnapshot.getValue() == null) {
-                            //email not found
-//                            waitingLeavingGroup.dismiss();
-//                            new LovelyInfoDialog(getContext())
-//                                    .setTopColorRes(R.color.colorAccent)
-//                                    .setTitle("Error")
-//                                    .setMessage("Error occurred during leaving group")
-//                                    .show();
+                            Toast.makeText(getContext(), "You are not in this group", Toast.LENGTH_SHORT).show();
                         } else {
                             String memberIndex = "";
                             ArrayList<String> result = ((ArrayList<String>)dataSnapshot.getValue());
@@ -385,12 +370,11 @@ class ListGroupsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 for(String id : listGroup.get(position).member) {
                     idFriend.add(id);
                     String avata = listFriend.getAvataById(id);
-                    if(!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
-                       // byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
-                        //ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
+                    if(!avata.equals(StaticConfig.STR_DEFAULT_URI)) {
+
                         ChatActivity.bitmapAvataFriend.put(id, avata);
-                    }else if(avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
-                        //ChatActivity.bitmapAvataFriend.put(id, BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
+                    }else if(avata.equals(StaticConfig.STR_DEFAULT_URI)) {
+
                         ChatActivity.bitmapAvataFriend.put(id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c");
                     }else {
                         ChatActivity.bitmapAvataFriend.put(id, null);
