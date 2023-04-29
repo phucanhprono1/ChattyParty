@@ -63,7 +63,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public FragFriendClickFloatButton onClickFloatButton;
     private ListFriend dataListFriend = null;
     private ArrayList<String> listFriendID = null;
-    private ProgressDialog dialogFindAllFriend;
+
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CountDownTimer detectFriendOnline;
     public static int ACTION_START_CHAT = 1;
@@ -494,10 +494,10 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         String friendName = (String) ((ItemFriendViewHolder) holder).txtName.getText();
 //                        final String idRemove = listFriend.getListFriend().get(position).id;
 //                        deleteFriend(idRemove);
-                        new AlertDialog.Builder(context)
-                                .setTitle("Delete Friend")
-                                .setMessage("Are you sure want to delete " + friendName + "?")
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                         new AlertDialog.Builder(context)
+                                .setTitle("Choose Action")
+                                .setMessage("Do you want to delete " + friendName + " or view their wall?")
+                                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         dialogInterface.dismiss();
@@ -505,10 +505,13 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                         deleteFriend(idFriendRemoval);
                                     }
                                 })
-                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                .setNegativeButton("View Wall", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-//                                        dialogInterface.dismiss();
+                                        dialogInterface.dismiss();
+                                        Intent intent = new Intent(context, FriendWallActivity.class);
+                                        intent.putExtra("friendId", listFriend.getListFriend().get(position).id);
+                                        context.startActivity(intent);
                                     }
                                 }).show();
 

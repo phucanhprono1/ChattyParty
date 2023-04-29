@@ -143,17 +143,7 @@ public class LoginOptionActivity extends AppCompatActivity {
 
             }
         });
-        usersRef.child(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                StaticConfig.STR_DEFAULT_URI= snapshot.child("avata").getValue().toString();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
         startActivity(intent);
     }
 

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.chattyparty.data.StaticConfig;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -60,6 +61,7 @@ public class MainProfile extends AppCompatActivity {
                     String name = dataSnapshot.child("name").getValue(String.class);
                     username.setText(name);
                     String tmp=dataSnapshot.child("avata").getValue(String.class);
+                    StaticConfig.STR_DEFAULT_URI= dataSnapshot.child("avata").getValue().toString();
 //                    Uri avt =  Uri.parse(tmp);
                     Glide.with(getApplicationContext()).load(tmp).override(150,150)
                             .placeholder(R.drawable.placeholder)
