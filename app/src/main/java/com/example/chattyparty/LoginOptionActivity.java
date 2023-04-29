@@ -127,6 +127,7 @@ public class LoginOptionActivity extends AppCompatActivity {
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         String userId = mAuth.getCurrentUser().getUid();
         StaticConfig.UID = user.getUid();
+
         us = new User(userId, user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
 //        us.id=userId;
         usersRef.child(userId).addValueEventListener(new ValueEventListener() {
@@ -135,6 +136,17 @@ public class LoginOptionActivity extends AppCompatActivity {
                 if(!snapshot.exists()){
                     usersRef.child(userId).setValue(us);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        usersRef.child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                StaticConfig.STR_DEFAULT_URI= snapshot.child("avata").getValue().toString();
             }
 
             @Override

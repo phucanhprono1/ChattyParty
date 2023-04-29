@@ -102,28 +102,28 @@ public class LoginActivity extends AppCompatActivity {
 //        startActivity(intent);
 //        finish();
 //    }
-//    void saveUserInfo() {
-//        FirebaseDatabase.getInstance().getReference().child("user/" + StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                HashMap hashUser = (HashMap) dataSnapshot.getValue();
-//                User userInfo = new User();
-//                userInfo.name = (String) hashUser.get("name");
-//                userInfo.email = (String) hashUser.get("email");
-//                userInfo.avata = (String) hashUser.get("avata");
-//                SharedPreferenceHelper.getInstance(LoginActivity.this).saveUserInfo(userInfo);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
+    void saveUserInfo() {
+        FirebaseDatabase.getInstance().getReference().child("users/" + StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                HashMap hashUser = (HashMap) dataSnapshot.getValue();
+                User userInfo = new User();
+                userInfo.name = (String) hashUser.get("name");
+                userInfo.email = (String) hashUser.get("email");
+                userInfo.avata = (String) hashUser.get("avata");
+                SharedPreferenceHelper.getInstance(LoginActivity.this).saveUserInfo(userInfo);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
     private void updateUI(FirebaseUser user) {
         StaticConfig.UID = user.getUid();
-//        saveUserInfo();
+        saveUserInfo();
         Intent intent = new Intent( LoginActivity.this, MainProfile.class);
         startActivity(intent);
     }

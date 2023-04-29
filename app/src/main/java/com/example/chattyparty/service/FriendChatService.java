@@ -46,7 +46,7 @@ public class FriendChatService extends Service {
     public Map<String, Boolean> mapMark;
     public Map<String, Query> mapQuery;
     public Map<String, ChildEventListener> mapChildEventListenerMap;
-    public Map<String, Bitmap> mapBitmap;
+    public Map<String, String> mapBitmap;
     public ArrayList<String> listKey;
     public ListFriend listFriend;
     public ArrayList<Group> listGroup;
@@ -94,10 +94,10 @@ public class FriendChatService extends Service {
 //                                Toast.makeText(FriendChatService.this, friend.name + ": " + ((HashMap)dataSnapshot.getValue()).get("text"), Toast.LENGTH_SHORT).show();
                                 if (mapBitmap.get(friend.idRoom) == null) {
                                     if (!friend.avata.equals(StaticConfig.STR_DEFAULT_URI)) {
-                                        byte[] decodedString = Base64.decode(friend.avata, Base64.DEFAULT);
-                                        mapBitmap.put(friend.idRoom, BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
+//                                        byte[] decodedString = Base64.decode(friend.avata, Base64.DEFAULT);
+                                        mapBitmap.put(friend.idRoom, friend.avata);
                                     } else {
-                                        mapBitmap.put(friend.idRoom, BitmapFactory.decodeResource(getResources(), R.drawable.default_avata));
+                                        mapBitmap.put(friend.idRoom, StaticConfig.STR_DEFAULT_URI);
                                     }
                                 }
                                 createNotify(friend.name, (String) ((HashMap) dataSnapshot.getValue()).get("text"), friend.idRoom.hashCode(), mapBitmap.get(friend.idRoom), false);
@@ -140,7 +140,7 @@ public class FriendChatService extends Service {
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             if (mapMark.get(group.id) != null && mapMark.get(group.id)) {
                                 if (mapBitmap.get(group.id) == null) {
-                                    mapBitmap.put(group.id, BitmapFactory.decodeResource(getResources(), R.drawable.ic_notify_group));
+                                    mapBitmap.put(group.id, "https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/ic_notify_group.png?alt=media&token=5248ec61-a1f0-4f3f-9091-4b10dd830f96");
                                 }
                                 createNotify(group.groupInfo.get("name"), (String) ((HashMap) dataSnapshot.getValue()).get("text"), group.id.hashCode(), mapBitmap.get(group.id) , true);
                             } else {
@@ -182,12 +182,12 @@ public class FriendChatService extends Service {
         mapMark.put(id, false);
     }
 
-    public void createNotify(String name, String content, int id, Bitmap icon, boolean isGroup) {
+    public void createNotify(String name, String content, int id, String icon, boolean isGroup) {
         Intent activityIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_ONE_SHOT);
         NotificationCompat.Builder notificationBuilder = new
                 NotificationCompat.Builder(this)
-                .setLargeIcon(icon)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_notify_group))
                 .setContentTitle(name)
                 .setContentText(content)
                 .setContentIntent(pendingIntent)
