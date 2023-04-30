@@ -1,16 +1,16 @@
 package com.example.chattyparty.model;
 
 public class Posts {
-    private String datePost,postDesc,postImageURL,userProfileImageURL,username;
+    private String datePost,postDesc,postImageUrl,userProfileImageUrl,username;
 
     public Posts() {
     }
 
-    public Posts(String datePost, String postDesc, String postImageURL, String userProfileImageURL, String username) {
+    public Posts(String datePost, String postDesc, String postImageUrl, String userProfileImageUrl, String username) {
         this.datePost = datePost;
         this.postDesc = postDesc;
-        this.postImageURL = postImageURL;
-        this.userProfileImageURL = userProfileImageURL;
+        this.postImageUrl = postImageUrl;
+        this.userProfileImageUrl = userProfileImageUrl;
         this.username = username;
     }
 
@@ -31,19 +31,19 @@ public class Posts {
     }
 
     public String getPostImageURL() {
-        return postImageURL;
+        return postImageUrl;
     }
 
-    public void setPostImageURL(String postImageURL) {
-        this.postImageURL = postImageURL;
+    public void setPostImageURL(String postImageUrl) {
+        this.postImageUrl = postImageUrl;
     }
 
     public String getUserProfileImageURL() {
-        return userProfileImageURL;
+        return userProfileImageUrl;
     }
 
     public void setUserProfileImageURL(String userProfileImageURL) {
-        this.userProfileImageURL = userProfileImageURL;
+        this.userProfileImageUrl = userProfileImageURL;
     }
 
     public String getUsername() {

@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -114,20 +115,8 @@ public class NewsfeedActivity extends AppCompatActivity {
                 holder.postDesc.setText(model.getPostDesc());
                 holder.timeAgo.setText(model.getDatePost());
                 holder.username.setText(model.getUsername());
-//
-//░█████╗░██╗░░░██╗██╗░░░██╗  ████████╗░█████╗░██╗
-//██╔══██╗██║░░░██║██║░░░██║  ╚══██╔══╝██╔══██╗██║
-//██║░░╚═╝██║░░░██║██║░░░██║  ░░░██║░░░██║░░██║██║
-//██║░░██╗██║░░░██║██║░░░██║  ░░░██║░░░██║░░██║██║
-//╚█████╔╝╚██████╔╝╚██████╔╝  ░░░██║░░░╚█████╔╝██║
-//░╚════╝░░╚═════╝░░╚═════╝░  ░░░╚═╝░░░░╚════╝░╚═╝
-//
-//██╗░░░██╗░█████╗░██╗
-//██║░░░██║██╔══██╗██║
-//╚██╗░██╔╝██║░░██║██║
-//░╚████╔╝░██║░░██║██║
-//░░╚██╔╝░░╚█████╔╝██║
-//░░░╚═╝░░░░╚════╝░╚═╝
+//                Picasso.get().load("https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/PostImages%2F7tTCfBPuQMZ9IdvpETW2sQtpw3y229-04-2023%2011%3A59%3A55?alt=media&token=771c30bd-ed25-4cb2-ab55-2f320d91afa8").into(holder.postImage);
+//                Picasso.get().load(model.getUserProfileImageURL()).into(holder.profileImage);
                 Glide.with(holder.itemView).load(model.getPostImageURL()).into(((MyViewHolder)holder).postImage);
                 Glide.with(holder.itemView).load(model.getUserProfileImageURL()).into(((MyViewHolder)holder).profileImage);
             }
