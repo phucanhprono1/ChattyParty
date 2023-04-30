@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -33,7 +34,10 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.util.UUID;
 
+
+
 public class ChangeProfile extends AppCompatActivity {
+    private static final int REQUEST_CODE = 101;
     private Uri filePath;
     private ImageView imgAvt;
     private String avtPath="";
@@ -49,13 +53,23 @@ public class ChangeProfile extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         EditText name = findViewById(R.id.editUsername);
-        imgAvt = findViewById(R.id.imageView3);
+        EditText city = findViewById(R.id.editCity);
+        EditText country = findViewById(R.id.editCountry);
+        EditText profession = findViewById(R.id.editProfession);
+        TextView email = findViewById(R.id.email);
+        TextView bio = findViewById(R.id.editBio);
+        imgAvt = findViewById(R.id.profile_image);
 
 
         usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 name.setText(snapshot.child("name").getValue(String.class));
+                city.setText(snapshot.child("city").getValue(String.class));
+                country.setText(snapshot.child("country").getValue(String.class));
+                profession.setText(snapshot.child("profession").getValue(String.class));
+                email.setText(snapshot.child("email").getValue(String.class));
+                bio.setText(snapshot.child("bio").getValue(String.class));
                 Glide.with(getApplicationContext()).load(Uri.parse(snapshot.child("avata").getValue(String.class))).override(100,100).into(imgAvt);
             }
 
@@ -65,33 +79,32 @@ public class ChangeProfile extends AppCompatActivity {
             }
         });
 
-        Button choose = findViewById(R.id.choosePic);
-        Button upload = findViewById(R.id.upload1);
         storage =FirebaseStorage.getInstance();
         storageRef = storage.getReference();
-        upload.setOnClickListener(new View.OnClickListener() {
+        imgAvt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                uploadImage();
-            }
-        });
-        choose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 chooseImage();
             }
         });
-        findViewById(R.id.buttonSaveChange).setOnClickListener(new View.OnClickListener() {
+
+        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String username = name.getText().toString();
-                if(avtPath.equalsIgnoreCase("")){
-                    Toast.makeText(getApplicationContext(),"No avt added",Toast.LENGTH_SHORT).show();
-                }
+                String usercity= city.getText().toString();
+                String usercountry = country.getText().toString();
+                String userprofession = profession.getText().toString();
+                String userbio = bio.getText().toString();
                 usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         usersRef.child(user.getUid()).child("name").setValue(username);
+                        usersRef.child(user.getUid()).child("city").setValue(usercity);
+                        usersRef.child(user.getUid()).child("country").setValue(usercountry);
+                        usersRef.child(user.getUid()).child("profession").setValue(userprofession);
+                        usersRef.child(user.getUid()).child("bio").setValue(userbio);
+
                         if(!avtPath.equalsIgnoreCase("")){
                             usersRef.child(user.getUid()).child("avata").setValue(avtPath);
                         }
@@ -109,12 +122,14 @@ public class ChangeProfile extends AppCompatActivity {
 
 
     }
+
     private void chooseImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -125,6 +140,7 @@ public class ChangeProfile extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imgAvt.setImageBitmap(bitmap);
+                uploadImage(); // Call the uploadImage() method immediately after selecting an image
             }
             catch (IOException e)
             {
