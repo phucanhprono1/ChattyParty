@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.chattyparty.model.Comment;
 import com.example.chattyparty.model.Posts;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -34,11 +37,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
+//import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 public class NewsfeedActivity extends AppCompatActivity {
     private static final int REQUEST_CODE=101;
@@ -46,7 +51,7 @@ public class NewsfeedActivity extends AppCompatActivity {
     EditText inputPost;
     Uri imageUri;
     String profileImageUrl,userName;
-    DatabaseReference PostRef,mUserRef;
+    DatabaseReference PostRef,mUserRef, likeRef,CommentRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     StorageReference postImageRef;
@@ -54,6 +59,8 @@ public class NewsfeedActivity extends AppCompatActivity {
     FirebaseRecyclerAdapter<Posts,MyViewHolder>adapter;
     FirebaseRecyclerOptions<Posts>options;
     RecyclerView recyclerView;
+    FirebaseRecyclerOptions<Comment>CommentOption;
+    FirebaseRecyclerAdapter<Comment,CommentViewHolder>CommentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +75,9 @@ public class NewsfeedActivity extends AppCompatActivity {
         mUser= mAuth.getCurrentUser();
         mUserRef= FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("users");
         PostRef= FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("posts");
+        likeRef= FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("likes");
+        CommentRef= FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("comments");
+
         postImageRef= FirebaseStorage.getInstance().getReference().child("PostImages");
 
         mLoadingBar=new ProgressDialog(this);
@@ -112,13 +122,53 @@ public class NewsfeedActivity extends AppCompatActivity {
         adapter=new FirebaseRecyclerAdapter<Posts, MyViewHolder>(options) {
             @Override
             protected void onBindViewHolder(MyViewHolder holder, int position,  Posts model) {
+                String postKey=getRef(position).getKey();
                 holder.postDesc.setText(model.getPostDesc());
-                holder.timeAgo.setText(model.getDatePost());
+                String timeAgo=caculateTimeAgo(model.getDatePost());
+                holder.timeAgo.setText(timeAgo);
                 holder.username.setText(model.getUsername());
 //                Picasso.get().load("https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/PostImages%2F7tTCfBPuQMZ9IdvpETW2sQtpw3y229-04-2023%2011%3A59%3A55?alt=media&token=771c30bd-ed25-4cb2-ab55-2f320d91afa8").into(holder.postImage);
 //                Picasso.get().load(model.getUserProfileImageURL()).into(holder.profileImage);
                 Glide.with(holder.itemView).load(model.getPostImageURL()).into(((MyViewHolder)holder).postImage);
                 Glide.with(holder.itemView).load(model.getUserProfileImageURL()).into(((MyViewHolder)holder).profileImage);
+                holder.countLikes(postKey,mUser.getUid(),likeRef);
+                holder.countComments(postKey,mUser.getUid(),CommentRef);
+                holder.likeImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        likeRef.child(postKey).child(mUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if(snapshot.exists()){
+                                    likeRef.child(postKey).child(mUser.getUid()).removeValue();
+                                    holder.likeImage.setColorFilter(Color.GRAY);
+                                    notifyDataSetChanged();
+                                }
+                                else{
+                                    likeRef.child(postKey).child(mUser.getUid()).setValue("like");
+                                    holder.likeImage.setColorFilter(Color.BLUE);
+                                    notifyDataSetChanged();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(NewsfeedActivity.this,""+error.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+                holder.sendComment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String comment=holder.inputComments.getText().toString();
+                        if(comment.isEmpty()){
+                            Toast.makeText(NewsfeedActivity.this,"Comment something before sending",Toast.LENGTH_SHORT).show();
+                        }
+                        else AddComment(holder,postKey,CommentRef,mUser.getUid(),comment);
+                    }
+                });
+                LoadComments(postKey);
             }
 
             @NonNull
@@ -130,6 +180,63 @@ public class NewsfeedActivity extends AppCompatActivity {
         };
         adapter.startListening();
         recyclerView.setAdapter(adapter);
+    }
+
+    private void LoadComments(String postKey) {
+        MyViewHolder.recyclerView.setLayoutManager(new LinearLayoutManager(NewsfeedActivity.this));
+        CommentOption=new FirebaseRecyclerOptions.Builder<Comment>().setQuery(CommentRef.child(postKey), Comment.class).build();
+        CommentAdapter=new FirebaseRecyclerAdapter<Comment, CommentViewHolder>(CommentOption) {
+            @Override
+            protected void onBindViewHolder(@NonNull CommentViewHolder holder, int position, @NonNull Comment model) {
+                Glide.with(holder.itemView).load(model.getProfileImageURL()).into(((CommentViewHolder)holder).profileImage);
+                holder.username.setText(model.getUsername());
+                holder.comment.setText(model.getComment());
+            }
+
+            @NonNull
+            @Override
+            public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_comment,parent,false);
+                return new CommentViewHolder(view);
+            }
+        };
+        CommentAdapter.startListening();
+        MyViewHolder.recyclerView.setAdapter(CommentAdapter);
+    }
+
+    private void AddComment(MyViewHolder holder, String postKey, DatabaseReference commentRef, String uid, String comment) {
+        HashMap hashMap=new HashMap();
+        hashMap.put("username",userName);
+        hashMap.put("profileImageURL",profileImageUrl);
+        hashMap.put("comment",comment);
+
+        commentRef.child(postKey).child(uid).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(NewsfeedActivity.this,"Comment Added",Toast.LENGTH_SHORT).show();
+                    adapter.notifyDataSetChanged();
+                    holder.inputComments.setText(null);
+                }
+                else{
+                    Toast.makeText(NewsfeedActivity.this,""+task.getException().toString(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private String caculateTimeAgo(String datePost) {
+        SimpleDateFormat sdf=new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+//        sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+        try{
+            long time = sdf.parse(datePost).getTime();
+            long now=System.currentTimeMillis();
+            CharSequence ago= DateUtils.getRelativeTimeSpanString(time,now,DateUtils.MINUTE_IN_MILLIS);
+            return ago+"";
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
+        return "";
     }
 
     @Override
@@ -152,7 +259,7 @@ public class NewsfeedActivity extends AppCompatActivity {
             mLoadingBar.show();
 
             Date date=new Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             String strDate = formatter.format(date);
 
             postImageRef.child(mUser.getUid()+strDate).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
