@@ -2,6 +2,8 @@ package com.example.chattyparty;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.Manifest;
@@ -104,7 +107,7 @@ public class SignUp extends AppCompatActivity {
                 chooseImage();
             }
         });
-        ImageButton camera = findViewById(R.id.btnCamera);
+
 //        btnUpload.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -132,7 +135,11 @@ public class SignUp extends AppCompatActivity {
                     mUsernameField.setError("Username is required.");
                     return;
                 }
-
+                Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(email);
+                if(!matcher.find()){
+                    mEmailField.setError("Email is invalid.");
+                    return;
+                }
                 if (TextUtils.isEmpty(email)) {
                     mEmailField.setError("Email is required.");
                     return;
@@ -169,8 +176,11 @@ public class SignUp extends AppCompatActivity {
             }
         });
     }
-    private static final int CAMERA_REQUEST_CODE = 2;
+    private static final int CAMERA_REQUEST_CODE = 1;
     private void takePicture() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
+        }
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
