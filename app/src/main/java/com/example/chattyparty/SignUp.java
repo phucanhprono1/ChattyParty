@@ -82,7 +82,10 @@ public class SignUp extends AppCompatActivity {
         mEmailField = findViewById(R.id.editTextEmail1);
         mPasswordField = findViewById(R.id.editTextPassword1);
         repassword = findViewById(R.id.repassword);
-
+        //permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
+        }
         //Set avatar
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -178,9 +181,7 @@ public class SignUp extends AppCompatActivity {
     }
     private static final int CAMERA_REQUEST_CODE = 1;
     private void takePicture() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
-        }
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
