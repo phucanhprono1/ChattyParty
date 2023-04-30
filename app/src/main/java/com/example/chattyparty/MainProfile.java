@@ -1,5 +1,7 @@
 package com.example.chattyparty;
 
+
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.chattyparty.data.StaticConfig;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,12 +22,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 //import com.squareup.picasso.Picasso;
 
 public class MainProfile extends AppCompatActivity {
-    ImageView avatar;
+    CircleImageView avatar;
     TextView username;
+    TextView email;
+    TextView city;
+    TextView country;
+    TextView profession;
+    TextView bio;
     Button logout;
+    Button chat;
+    Button feed;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -34,23 +44,40 @@ public class MainProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_profile);
 
-        avatar = findViewById(R.id.avatar);
+        avatar = findViewById(R.id.profile_image);
+        username = findViewById(R.id.editUsername);
+        email = findViewById(R.id.email);
+        city = findViewById(R.id.editCity);
+        country = findViewById(R.id.editCountry);
+        profession = findViewById(R.id.editProfession);
+        bio = findViewById(R.id.editBio);
+        logout = (Button) findViewById(R.id.btnLogout);
+        chat = (Button) findViewById(R.id.btnchat);
+        feed = (Button) findViewById(R.id.btnfeed);
         Glide.with(getApplicationContext()).load("https://firebasestorage.googleapis.com/v0/b/chattyparty-7d883.appspot.com/o/default-profile-icon-5.jpg?alt=media&token=709f372e-e2a0-44ca-8c22-0bb47e710f8c")
                 .override(120,120).placeholder(R.drawable.placeholder).into(avatar);
-        avatar.setOnClickListener(new View.OnClickListener() {
+
+        chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(MainProfile.this,MainActivity.class);
                 startActivity(i);
             }
         });
-        username = findViewById(R.id.username);
-        logout = (Button) findViewById(R.id.btnLogout);
+
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        findViewById(R.id.change_profile).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnchange_profile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(MainProfile.this,ChangeProfile.class);
+                startActivity(i);
+            }
+        });
+        feed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainProfile.this,NewsfeedActivity.class);
                 startActivity(i);
             }
         });
@@ -60,8 +87,17 @@ public class MainProfile extends AppCompatActivity {
                 if (dataSnapshot.exists()) {
                     String name = dataSnapshot.child("name").getValue(String.class);
                     username.setText(name);
+                    String uemail = dataSnapshot.child("email").getValue(String.class);
+                    email.setText(uemail);
+                    String ucity = dataSnapshot.child("city").getValue(String.class);
+                    city.setText(ucity);
+                    String ucountry = dataSnapshot.child("country").getValue(String.class);
+                    country.setText(ucountry);
+                    String uprofession = dataSnapshot.child("profession").getValue(String.class);
+                    profession.setText(uprofession);
+                    String ubio = dataSnapshot.child("bio").getValue(String.class);
+                    bio.setText(ubio);
                     String tmp=dataSnapshot.child("avata").getValue(String.class);
-                    StaticConfig.STR_DEFAULT_URI= dataSnapshot.child("avata").getValue().toString();
 //                    Uri avt =  Uri.parse(tmp);
                     Glide.with(getApplicationContext()).load(tmp).override(150,150)
                             .placeholder(R.drawable.placeholder)
