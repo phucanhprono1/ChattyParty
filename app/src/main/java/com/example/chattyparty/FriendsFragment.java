@@ -242,6 +242,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                         } else {
                             HashMap userMap = (HashMap) ((HashMap) dataSnapshot.getValue()).get(id);
+                            StaticConfig.ID_FRIEND_REQ= id;
                             user = new Friend();
                             user.name = (String) userMap.get("name");
                             user.email = (String) userMap.get("email");

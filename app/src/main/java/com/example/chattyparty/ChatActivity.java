@@ -116,7 +116,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         linearLayoutManager.scrollToPosition(consersation.getListMessageData().size() - 1);
                         // Send a push notification to the user
                         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        if (Build.VERSION.SDK_INT >= 30 ){
+                        if (Build.VERSION.SDK_INT >= 24){
                             if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
                             }
