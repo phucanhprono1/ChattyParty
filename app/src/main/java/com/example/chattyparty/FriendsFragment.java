@@ -541,7 +541,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         String friendName = (String) ((ItemFriendViewHolder) holder).txtName.getText();
 //                        final String idRemove = listFriend.getListFriend().get(position).id;
 //                        deleteFriend(idRemove);
-                         new AlertDialog.Builder(context)
+                        new AlertDialog.Builder(context)
                                 .setTitle("Choose Action")
                                 .setMessage("Do you want to delete " + friendName + " or view their wall?")
                                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
@@ -740,6 +740,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                                             }
                                         });
+                                FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests").child(StaticConfig.UID).child(idFriend).removeValue();
                             }
                         }
 
