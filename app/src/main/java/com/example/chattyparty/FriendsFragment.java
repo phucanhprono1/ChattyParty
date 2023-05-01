@@ -272,40 +272,82 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
 //
             } else {
-                addFriendRequest(idFriend);
-                addFriend(idFriend, true);
+                addFriendRequest(idFriend, userInfo);
+//
+//                addFriend(idFriend, true);
                 listFriendID.add(idFriend);
                 dataListFriend.getListFriend().add(userInfo);
                 friendDB.addFriend(userInfo);
                 adapter.notifyDataSetChanged();
             }
         }
-        private void addFriendRequest(final String idFriend) {
+        private void addFriendRequest(final String idFriend, Friend userInfo) {
             if (idFriend != null) {
                 DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
                 String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 HashMap<String, Object> friendRequestMap = new HashMap<>();
-                friendRequestMap.put("sender", currentUserID);
-                friendRequestMap.put("receiver", idFriend);
-                friendRequestMap.put("status", "pending");
+                userRef.child(currentUserID).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String name = snapshot.child("name").getValue().toString();
+                        friendRequestMap.put("senderName", name);
+                        friendRequestMap.put("senderImage", snapshot.child("avata").getValue().toString());
+                        friendRequestMap.put("sender", currentUserID);
 
-                friendRequestRef.push().setValue(friendRequestMap)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(getContext(), "Friend request sent", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                        friendRequestMap.put("receiver", idFriend);
+                        friendRequestMap.put("status", "pending");
+
+                        friendRequestRef.child(idFriend).setValue(friendRequestMap)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(getContext(), "Friend request sent", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                        // Add a ValueEventListener to the friend request node
+                        friendRequestRef.child(idFriend).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    String status = snapshot.child("status").getValue().toString();
+                                    if (status.equals("accepted")) {
+                                        // The friend request has been accepted
+                                        Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
+                                        // Call addFriend() method and update UI accordingly
+                                        addFriend(idFriend, true);
+                                        listFriendID.add(idFriend);
+                                        dataListFriend.getListFriend().add(userInfo);
+                                        friendDB.addFriend(userInfo);
+                                        adapter.notifyDataSetChanged();
+                                    } else if (status.equals("rejected")) {
+                                        // The friend request has been rejected
+                                        Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
                             }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Handle onCancelled event
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Handle onCancelled event
+                    }
+                });
             }
         }
         /**

@@ -206,7 +206,7 @@ public class SignUp extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSION_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    takePicture();
+                    Toast.makeText(this, "Accepted", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
                 }

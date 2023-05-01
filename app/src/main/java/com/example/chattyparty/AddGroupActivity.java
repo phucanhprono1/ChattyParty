@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.chattyparty.data.FriendDB;
 import com.example.chattyparty.data.GroupDB;
 import com.example.chattyparty.data.StaticConfig;
@@ -256,12 +258,12 @@ class ListPeopleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ((ItemFriendHolder) holder).txtEmail.setText(listFriend.getListFriend().get(position).email);
         String avata = listFriend.getListFriend().get(position).avata;
         final String id = listFriend.getListFriend().get(position).id;
-//        if (!avata.equals(StaticConfig.STR_DEFAULT_BASE64)) {
+        if (!avata.equals(StaticConfig.STR_DEFAULT_URI)) {
 //            byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
-//            ((ItemFriendHolder) holder).avata.setImageBitmap(BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
-//        }else{
-//            ((ItemFriendHolder) holder).avata.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
-//        }
+            Glide.with(holder.itemView).load(avata).into(((ItemFriendHolder) holder).avata);
+        }else{
+            ((ItemFriendHolder) holder).avata.setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.default_avata));
+        }
         ((ItemFriendHolder) holder).checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

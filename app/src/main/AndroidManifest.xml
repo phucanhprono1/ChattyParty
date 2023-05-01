@@ -29,6 +29,9 @@
         android:theme="@style/Theme.ChattyParty"
         tools:targetApi="31">
         <activity
+            android:name=".FriendRequestActivity"
+            android:exported="false" />
+        <activity
             android:name=".NewsfeedActivity"
             android:exported="false" />
         <activity
