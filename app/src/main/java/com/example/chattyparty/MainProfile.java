@@ -37,6 +37,7 @@ public class MainProfile extends AppCompatActivity {
     Button logout;
     Button chat;
     Button feed;
+    Button friend_request;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -113,7 +114,14 @@ public class MainProfile extends AppCompatActivity {
         });
         //}
 
-
+        friend_request = findViewById(R.id.btn_friend_requests);
+        friend_request.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainProfile.this,FriendRequestActivity.class);
+                startActivity(i);
+            }
+        });
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

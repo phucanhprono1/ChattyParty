@@ -260,6 +260,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
             });
         }
 
+        DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
+
         /**
          * Lay danh sach friend cua một UID
          */
@@ -273,17 +275,46 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 //
             } else {
                 addFriendRequest(idFriend, userInfo);
+                friendRequestRef.child(idFriend).child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String status = snapshot.child("status").getValue().toString();
+                            if (status.equals("accepted")) {
+                                // The friend request has been accepted
+                                Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
+                                // Call addFriend() method and update UI accordingly
+                                addFriend(idFriend, true);
+                                listFriendID.add(idFriend);
+                                dataListFriend.getListFriend().add(userInfo);
+                                friendDB.addFriend(userInfo);
+                                adapter.notifyDataSetChanged();
+                            } else if (status.equals("rejected")) {
+                                // The friend request has been rejected
+                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Handle onCancelled event
+                    }
+                });
+
+            }
 //
 //                addFriend(idFriend, true);
-                listFriendID.add(idFriend);
-                dataListFriend.getListFriend().add(userInfo);
-                friendDB.addFriend(userInfo);
-                adapter.notifyDataSetChanged();
-            }
+//                listFriendID.add(idFriend);
+//                dataListFriend.getListFriend().add(userInfo);
+//                friendDB.addFriend(userInfo);
+//                adapter.notifyDataSetChanged();
+
         }
+
         private void addFriendRequest(final String idFriend, Friend userInfo) {
             if (idFriend != null) {
-                DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
+
                 String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 HashMap<String, Object> friendRequestMap = new HashMap<>();
                 userRef.child(currentUserID).addValueEventListener(new ValueEventListener() {
@@ -296,8 +327,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
                         friendRequestMap.put("receiver", idFriend);
                         friendRequestMap.put("status", "pending");
-
-                        friendRequestRef.child(idFriend).setValue(friendRequestMap)
+                        DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
+                        friendRequestRef.child(idFriend).child(currentUserID).setValue(friendRequestMap)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -315,32 +346,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                     }
                                 });
                         // Add a ValueEventListener to the friend request node
-                        friendRequestRef.child(idFriend).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()) {
-                                    String status = snapshot.child("status").getValue().toString();
-                                    if (status.equals("accepted")) {
-                                        // The friend request has been accepted
-                                        Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
-                                        // Call addFriend() method and update UI accordingly
-                                        addFriend(idFriend, true);
-                                        listFriendID.add(idFriend);
-                                        dataListFriend.getListFriend().add(userInfo);
-                                        friendDB.addFriend(userInfo);
-                                        adapter.notifyDataSetChanged();
-                                    } else if (status.equals("rejected")) {
-                                        // The friend request has been rejected
-                                        Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                // Handle onCancelled event
-                            }
-                        });
                     }
 
                     @Override
@@ -350,6 +356,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 });
             }
         }
+
         /**
          * Add friend
          *
@@ -394,8 +401,6 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 Toast.makeText(getContext(), "Add friend success", Toast.LENGTH_SHORT);
             }
         }
-
-
     }
 
     /**

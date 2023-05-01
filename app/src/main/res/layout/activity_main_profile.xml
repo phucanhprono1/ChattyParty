@@ -7,7 +7,7 @@
     tools:context=".MainProfile">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="0dp"
+        android:layout_width="400dp"
         android:layout_height="0dp"
         android:layout_margin="40dp"
         app:cardCornerRadius="20dp"
@@ -92,16 +92,15 @@
                 android:id="@+id/btnLogout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="11dp"
                 android:layout_marginEnd="8dp"
                 android:text="Log Out"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/editBio"
-                app:layout_constraintHorizontal_bias="0.491"
-                app:layout_constraintStart_toStartOf="@+id/editBio"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/btn_friend_requests"
                 app:layout_constraintTop_toBottomOf="@+id/editBio"
-                app:layout_constraintVertical_bias="0.515" />
+                app:layout_constraintVertical_bias="0.058" />
 
             <TextView
                 android:id="@+id/email"
@@ -166,6 +165,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/profile_image"
                 app:layout_constraintTop_toBottomOf="@+id/btnchat" />
+
+            <Button
+                android:id="@+id/btn_friend_requests"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="friend requests"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/editBio" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
