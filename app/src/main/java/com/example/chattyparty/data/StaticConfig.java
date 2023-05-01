@@ -1,6 +1,7 @@
 package com.example.chattyparty.data;
 
 
+import com.example.chattyparty.model.Friend;
 
 public class StaticConfig {
     public static int REQUEST_CODE_REGISTER = 2000;
@@ -19,6 +20,7 @@ public class StaticConfig {
     public static String INTENT_KEY_CHAT_ROOM_ID = "roomid";
     public static long TIME_TO_REFRESH = 10 * 1000;
     public static long TIME_TO_OFFLINE = 2 * 60 * 1000;
-    public static String ID_FRIEND_REQ = "";
+    public static String ID_FRIEND_REQ = null;
+    public static Friend FRIEND_REQUEST = null;
 
 }

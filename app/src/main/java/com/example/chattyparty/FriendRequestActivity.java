@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,23 +34,48 @@ public class FriendRequestActivity extends AppCompatActivity {
 
     List<FriendRequest> friendRequests = new ArrayList<>();
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
+    FriendRequestAdapter friendRequestAdapter;
+    SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_request);
         RecyclerView recyclerView = findViewById(R.id.recyclerView_friend_request);
-        FriendRequestAdapter friendRequestAdapter = new FriendRequestAdapter(friendRequests);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout_friend_request);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                friendRequests.clear();
+                friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            FriendRequest friendRequest = dataSnapshot.getValue(FriendRequest.class);
+                            friendRequests.add(friendRequest);
+                        }
+                        friendRequestAdapter.setFriendRequests(friendRequests);
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
         friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
 
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     FriendRequest friendRequest = dataSnapshot.getValue(FriendRequest.class);
                     friendRequests.add(friendRequest);
                 }
-                friendRequestAdapter.notifyDataSetChanged();
-
+                friendRequestAdapter.setFriendRequests(friendRequests);
+                recyclerView.setAdapter(friendRequestAdapter);
             }
 
             @Override
@@ -57,10 +83,12 @@ public class FriendRequestActivity extends AppCompatActivity {
 
             }
         });
+        friendRequestAdapter = new FriendRequestAdapter(friendRequests);
         recyclerView.setLayoutManager(new LinearLayoutManager(FriendRequestActivity.this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(friendRequestAdapter);
+//        recyclerView.setAdapter(friendRequestAdapter);
     }
 }
+
 class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.ViewHolder> {
     //DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
@@ -71,6 +99,10 @@ class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.Vie
         notifyDataSetChanged();
     }
 
+    public void setFriendRequests(List<FriendRequest> friendRequests) {
+        this.friendRequests = friendRequests;
+        notifyDataSetChanged();
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -86,7 +118,7 @@ class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.Vie
         holder.buttonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status")!=null){
+                if (friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status") != null) {
                     friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status").setValue("accepted");
                     holder.buttonAccept.setVisibility(View.GONE);
                     holder.buttonDelete.setVisibility(View.GONE);

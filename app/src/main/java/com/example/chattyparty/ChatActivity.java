@@ -125,7 +125,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                                     // Create the notification payload
                                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
                                     builder.setSmallIcon(R.drawable.ic_notification);
-                                    builder.setContentTitle("New Message");
+                                    builder.setContentTitle(SharedPreferenceHelper.getInstance(getApplicationContext()).getUserInfo().name);
                                     builder.setContentText(newMessage.text);
                                     builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
                                     builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));

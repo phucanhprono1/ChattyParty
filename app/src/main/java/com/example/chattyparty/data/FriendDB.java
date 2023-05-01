@@ -28,16 +28,23 @@ public final class FriendDB extends SQLiteOpenHelper{
         this.context=context;
     }
 
-//    private static FriendDB instance = null;
-//
-//    public static FriendDB getInstance(Context context) {
-//        if (instance == null) {
-//            instance = new FriendDB(context);
-////            mDbHelper = new FriendDBHelper(context);
-//        }
-//        return instance;
-//    }
+    public boolean checkFriendExist(String friendId) {
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        Cursor cursor = db.query(
+                FeedEntry.TABLE_NAME,   // The table to query
+                new String[]{FeedEntry.COLUMN_NAME_ID},   // The columns to return
+                FeedEntry.COLUMN_NAME_ID + "=?",          // The columns for the WHERE clause
+                new String[]{friendId},                   // The values for the WHERE clause
+                null,                                     // Don't group the rows
+                null,                                     // Don't filter by row groups
+                null                                      // The sort order
+        );
+
+        boolean exist = cursor.moveToFirst();
+        cursor.close();
+        return exist;
+    }
 
     public void addFriend(Friend friend) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -126,29 +133,4 @@ public final class FriendDB extends SQLiteOpenHelper{
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
 
-
-//    private static class FriendDBHelper extends SQLiteOpenHelper {
-//        // If you change the database schema, you must increment the database version.
-//        static final int DATABASE_VERSION = 1;
-//        static final String DATABASE_NAME = "FriendChat.db";
-//
-//        FriendDBHelper(Context context) {
-//            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-//        }
-//
-//        public void onCreate(SQLiteDatabase db) {
-//            db.execSQL(SQL_CREATE_ENTRIES);
-//        }
-//
-//        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//            // This database is only a cache for online data, so its upgrade policy is
-//            // to simply to discard the data and start over
-//            db.execSQL(SQL_DELETE_ENTRIES);
-//            onCreate(db);
-//        }
-//
-//        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//            onUpgrade(db, oldVersion, newVersion);
-//        }
-//    }
 }
