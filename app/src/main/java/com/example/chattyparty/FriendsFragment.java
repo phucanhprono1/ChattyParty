@@ -282,7 +282,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             String status = snapshot.child("status").getValue().toString();
                             if (status.equals("accepted")) {
                                 // The friend request has been accepted
-                                Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
                                 // Call addFriend() method and update UI accordingly
                                 addFriend(idFriend, true);
                                 listFriendID.add(idFriend);
@@ -291,7 +291,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 adapter.notifyDataSetChanged();
                             } else if (status.equals("rejected")) {
                                 // The friend request has been rejected
-                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -397,8 +397,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             });
                 }
             } else {
-
-                Toast.makeText(getContext(), "Add friend success", Toast.LENGTH_SHORT);
+//
+//                Toast.makeText(getContext(), "Add friend success", Toast.LENGTH_SHORT);
             }
         }
     }
