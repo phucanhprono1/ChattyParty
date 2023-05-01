@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,6 +53,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import android.Manifest;
 
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
@@ -114,37 +116,45 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         linearLayoutManager.scrollToPosition(consersation.getListMessageData().size() - 1);
                         // Send a push notification to the user
                         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        if (!newMessage.idSender.equals(currentUserId)) {
-                            // Create the notification payload
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
-                            builder.setSmallIcon(R.drawable.ic_notification);
-                            builder.setContentTitle("New Message");
-                            builder.setContentText(newMessage.text);
-                            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-
-                            // Create the notification channel (required for Android Oreo and above)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
-                                NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                                notificationManager.createNotificationChannel(channel);
+                        if (Build.VERSION.SDK_INT >= 30 ){
+                            if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
                             }
+                            else {
+                                if (!newMessage.idSender.equals(currentUserId)) {
+                                    // Create the notification payload
+                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
+                                    builder.setSmallIcon(R.drawable.ic_notification);
+                                    builder.setContentTitle("New Message");
+                                    builder.setContentText(newMessage.text);
+                                    builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                                    builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
 
-                            // Send the notification
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                                // TODO: Consider calling
-                                //    ActivityCompat#requestPermissions
-                                // here to request the missing permissions, and then overriding
-                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                //                                          int[] grantResults)
-                                // to handle the case where the user grants the permission. See the documentation
-                                // for ActivityCompat#requestPermissions for more details.
-                                return;
+                                    // Create the notification channel (required for Android Oreo and above)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
+                                        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                                        notificationManager.createNotificationChannel(channel);
+                                    }
+
+                                    // Send the notification
+                                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                        // TODO: Consider calling
+                                        //    ActivityCompat#requestPermissions
+                                        // here to request the missing permissions, and then overriding
+                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                        //                                          int[] grantResults)
+                                        // to handle the case where the user grants the permission. See the documentation
+                                        // for ActivityCompat#requestPermissions for more details.
+                                        return;
+                                    }
+                                    notificationManager.notify(0, builder.build());
+
+                                }
                             }
-                            notificationManager.notify(0, builder.build());
-
                         }
+
                     }
                 }
 

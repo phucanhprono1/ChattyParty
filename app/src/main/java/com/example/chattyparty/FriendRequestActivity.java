@@ -43,7 +43,7 @@ public class FriendRequestActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                friendRequests.clear();
+
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
                     FriendRequest friendRequest = dataSnapshot.getValue(FriendRequest.class);
                     friendRequests.add(friendRequest);
