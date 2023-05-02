@@ -1,13 +1,17 @@
 package com.example.chattyparty.service;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -16,8 +20,11 @@ import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
+import com.example.chattyparty.ChatActivity;
 import com.example.chattyparty.MainActivity;
 import com.example.chattyparty.R;
 import com.example.chattyparty.data.FriendDB;
@@ -100,6 +107,7 @@ public class FriendChatService extends Service {
                                         mapBitmap.put(friend.idRoom, StaticConfig.STR_DEFAULT_URI);
                                     }
                                 }
+
                                 createNotify(friend.name, (String) ((HashMap) dataSnapshot.getValue()).get("text"), friend.idRoom.hashCode(), mapBitmap.get(friend.idRoom), false);
 
                             } else {
@@ -183,28 +191,35 @@ public class FriendChatService extends Service {
     }
 
     public void createNotify(String name, String content, int id, String icon, boolean isGroup) {
-        Intent activityIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_ONE_SHOT);
-        NotificationCompat.Builder notificationBuilder = new
-                NotificationCompat.Builder(this)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_notify_group))
-                .setContentTitle(name)
-                .setContentText(content)
-                .setContentIntent(pendingIntent)
-                .setVibrate(new long[] { 1000, 1000})
-                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
-                .setAutoCancel(true);
-        if (isGroup) {
-            notificationBuilder.setSmallIcon(R.drawable.ic_tab_group);
-        } else {
-            notificationBuilder.setSmallIcon(R.drawable.ic_tab_person);
+        if (Build.VERSION.SDK_INT >= 24) {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            } else {
+                Intent activityIntent = new Intent(this, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_ONE_SHOT);
+                NotificationCompat.Builder notificationBuilder = new
+                        NotificationCompat.Builder(this)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_notify_group))
+                        .setContentTitle(name)
+                        .setContentText(content)
+                        .setContentIntent(pendingIntent)
+                        .setVibrate(new long[] { 1000, 1000})
+                        .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                        .setAutoCancel(true);
+                if (isGroup) {
+                    notificationBuilder.setSmallIcon(R.drawable.ic_tab_group);
+                } else {
+                    notificationBuilder.setSmallIcon(R.drawable.ic_tab_person);
+                }
+                NotificationManager notificationManager =
+                        (NotificationManager) this.getSystemService(
+                                Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(id);
+                notificationManager.notify(id,
+                        notificationBuilder.build());
+            }
         }
-        NotificationManager notificationManager =
-                (NotificationManager) this.getSystemService(
-                        Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(id);
-        notificationManager.notify(id,
-                notificationBuilder.build());
+
     }
 
     @Override

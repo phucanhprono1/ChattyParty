@@ -151,33 +151,33 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         getContext().registerReceiver(deleteFriendReceiver, intentFilter);
         Log.d(TAG, "onCreateView: " + StaticConfig.ID_FRIEND_REQ);
         if(StaticConfig.ID_FRIEND_REQ!=null&&friendDB.checkFriendExist(StaticConfig.ID_FRIEND_REQ)==false){
-            friendRequestRef.child(StaticConfig.ID_FRIEND_REQ).child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        String status = snapshot.child("status").getValue().toString();
-                        if (status.equals("accepted")) {
-                            // The friend request has been accepted
-//                                Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
-                            // Call addFriend() method and update UI accordingly
-                            addFriend(StaticConfig.ID_FRIEND_REQ, true);
-                            listFriendID.add(StaticConfig.ID_FRIEND_REQ);
-                            dataListFriend.getListFriend().add(StaticConfig.FRIEND_REQUEST);
-                            friendDB.addFriend(StaticConfig.FRIEND_REQUEST);
-                            Log.d(TAG, "onDataChange: " + StaticConfig.FRIEND_REQUEST.id);
-                            adapter.notifyDataSetChanged();
-                        } else if (status.equals("rejected")) {
-                            // The friend request has been rejected
-//                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    // Handle onCancelled event
-                }
-            });
+//            friendRequestRef.child(StaticConfig.ID_FRIEND_REQ).child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if (snapshot.exists()) {
+//                        String status = snapshot.child("status").getValue().toString();
+//                        if (status.equals("accepted")) {
+//                            // The friend request has been accepted
+////                                Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
+//                            // Call addFriend() method and update UI accordingly
+//                            addFriend(StaticConfig.ID_FRIEND_REQ, true);
+//                            listFriendID.add(StaticConfig.ID_FRIEND_REQ);
+//                            dataListFriend.getListFriend().add(StaticConfig.FRIEND_REQUEST);
+//                            friendDB.addFriend(StaticConfig.FRIEND_REQUEST);
+//                            Log.d(TAG, "onDataChange: " + StaticConfig.FRIEND_REQUEST.id);
+//                            adapter.notifyDataSetChanged();
+//                        } else if (status.equals("rejected")) {
+//                            // The friend request has been rejected
+////                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//                    // Handle onCancelled event
+//                }
+//            });
             friendRequestRef.child(StaticConfig.UID).child(StaticConfig.ID_FRIEND_REQ).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
