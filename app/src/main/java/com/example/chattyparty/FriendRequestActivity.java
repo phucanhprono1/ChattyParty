@@ -31,7 +31,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendRequestActivity extends AppCompatActivity {
+public class FriendRequestActivity extends AppCompatActivity implements FriendRequestAdapter.AcceptClickListener, FriendRequestAdapter.DeleteClickListener {
 
     List<FriendRequest> friendRequests = new ArrayList<>();
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
@@ -89,9 +89,57 @@ public class FriendRequestActivity extends AppCompatActivity {
 
             }
         });
-        friendRequestAdapter = new FriendRequestAdapter(friendRequests);
+        friendRequestAdapter = new FriendRequestAdapter(friendRequests,this,this);
         recyclerView.setLayoutManager(new LinearLayoutManager(FriendRequestActivity.this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(friendRequestAdapter);
+    }
+
+    @Override
+    public void onAcceptClick(FriendRequest friendRequest) {
+        friendRequests.clear();
+        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
+                Gson gson = new Gson();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String json = gson.toJson(child.getValue());
+                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+                    friendRequests.add(friendRequest);
+                    friendRequestAdapter.setFriendRequests(friendRequests);
+                }
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onDeleteClick(FriendRequest friendRequest) {
+        friendRequests.clear();
+        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
+                Gson gson = new Gson();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String json = gson.toJson(child.getValue());
+                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+                    friendRequests.add(friendRequest);
+                    friendRequestAdapter.setFriendRequests(friendRequests);
+                }
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }
 
@@ -99,9 +147,18 @@ class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.Vie
     //DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
     private List<FriendRequest> friendRequests;
-
-    public FriendRequestAdapter(List<FriendRequest> friendRequests) {
+    private AcceptClickListener acceptClickListener;
+    private DeleteClickListener deleteClickListener;
+    public interface AcceptClickListener {
+        void onAcceptClick(FriendRequest friendRequest);
+    }
+    public interface DeleteClickListener {
+        void onDeleteClick(FriendRequest friendRequest);
+    }
+    public FriendRequestAdapter(List<FriendRequest> friendRequests, AcceptClickListener acceptClickListener, DeleteClickListener deleteClickListener) {
         this.friendRequests = friendRequests;
+        this.acceptClickListener = acceptClickListener;
+        this.deleteClickListener = deleteClickListener;
         notifyDataSetChanged();
     }
 
@@ -124,12 +181,14 @@ class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.Vie
         holder.buttonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                acceptClickListener.onAcceptClick(friendRequest);
                 if (friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status") != null) {
                     friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status").setValue("accepted");
                     holder.buttonAccept.setVisibility(View.GONE);
                     holder.buttonDelete.setVisibility(View.GONE);
                     holder.notification.setVisibility(View.VISIBLE);
                     holder.notification.setText("Friend Request Accepted");
+
                 }
 
                 // handle accept button click event
@@ -138,12 +197,14 @@ class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.Vie
         holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                deleteClickListener.onDeleteClick(friendRequest);
                 friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status").setValue("rejected");
 
                 holder.buttonAccept.setVisibility(View.GONE);
                 holder.buttonDelete.setVisibility(View.GONE);
                 holder.notification.setVisibility(View.VISIBLE);
                 holder.notification.setText("Friend Request Rejected");
+
                 // handle delete button click event
             }
         });

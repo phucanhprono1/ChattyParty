@@ -69,7 +69,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public FragFriendClickFloatButton onClickFloatButton;
     private ListFriend dataListFriend = null;
     private ArrayList<String> listFriendID = null;
-
+    private ArrayList<String> listFriendID1 = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CountDownTimer detectFriendOnline;
     public static int ACTION_START_CHAT = 1;
@@ -111,12 +111,15 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         };
         friendDB = new FriendDB(getContext());
+
         if (dataListFriend == null) {
             dataListFriend = friendDB.getListFriend();
             if (dataListFriend.getListFriend().size() > 0) {
                 listFriendID = new ArrayList<>();
+                listFriendID1 = new ArrayList<>();
                 for (Friend friend : dataListFriend.getListFriend()) {
                     listFriendID.add(friend.id);
+                    listFriendID1.add(friend.id);
                 }
                 detectFriendOnline.start();
             }
@@ -162,9 +165,10 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String json = gson.toJson(child.getValue());
                     FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                    if(friendRequest.getStatus().equals("accepted")&&friendDB.checkFriendExist(friendRequest.getSender())==false){
+                    if(friendRequest.getStatus().equals("accepted")&&friendDB.checkFriendExist(friendRequest.getSender())==false&&checkFirebaseFriend(friendRequest.getSender())==false){
                         addFriend(friendRequest.getSender(), true);
                         listFriendID.add(friendRequest.getSender());
+                        listFriendID1.add(friendRequest.getSender());
                         Friend friend = new Friend();
                         friend.id = friendRequest.getId();
                         friend.avata = friendRequest.getAvata();
@@ -233,6 +237,16 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 //                Toast.makeText(getContext(), "Add friend success", Toast.LENGTH_SHORT);
         }
     }
+    public boolean checkFirebaseFriend(String idFriend) {
+        if (listFriendID != null) {
+            for (String id : listFriendID1) {
+                if (id.equals(idFriend)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -251,42 +265,6 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         listFriendID.clear();
-        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Gson gson = new Gson();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    String json = gson.toJson(child.getValue());
-                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                    if(friendRequest.getStatus().equals("accepted")&&friendDB.checkFriendExist(friendRequest.getSender())==false){
-                        addFriend(friendRequest.getSender(), true);
-                        listFriendID.add(friendRequest.getSender());
-                        Friend friend = new Friend();
-                        friend.id = friendRequest.getId();
-                        friend.avata = friendRequest.getAvata();
-                        friend.email = friendRequest.getEmail();
-                        friend.name = friendRequest.getName();
-                        friend.idRoom = friendRequest.getIdRoom();
-
-                        dataListFriend.getListFriend().add(friend);
-                        friendDB.addFriend(friend);
-//                        Log.d(TAG, "onDataChange: " + StaticConfig.FRIEND_REQUEST.id);
-                        adapter.notifyDataSetChanged();
-                    } else if (friendRequest.getStatus().equals("rejected")) {
-                        // The friend request has been rejected
-//                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle onCancelled event
-            }
-        });
-
-
         dataListFriend.getListFriend().clear();
         adapter.notifyDataSetChanged();
         friendDB.dropDB();
@@ -408,40 +386,11 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 //
             } else {
                 addFriendRequest(idFriend, userInfo,currUser);
-//                friendRequestRef.child(idFriend).child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        if (snapshot.exists()) {
-//                            String status = snapshot.child("status").getValue().toString();
-//                            if (status.equals("accepted")) {
-//                                // The friend request has been accepted
-////                                Toast.makeText(getContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
-//                                // Call addFriend() method and update UI accordingly
-//                                addFriend(idFriend, true);
-//                                listFriendID.add(idFriend);
-//                                dataListFriend.getListFriend().add(userInfo);
-//                                friendDB.addFriend(userInfo);
-//                                adapter.notifyDataSetChanged();
-//                            } else if (status.equals("rejected")) {
-//                                // The friend request has been rejected
-////                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//                        // Handle onCancelled event
-//                    }
-//                });
+
 
             }
 //
-//                addFriend(idFriend, true);
-//                listFriendID.add(idFriend);
-//                dataListFriend.getListFriend().add(userInfo);
-//                friendDB.addFriend(userInfo);
-//                adapter.notifyDataSetChanged();
+
 
         }
 
@@ -669,7 +618,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 ////                            byte[] decodedString = Base64.decode(avata, Base64.DEFAULT);
                             ChatActivity.bitmapAvataFriend.put(id, avata);
                         } else {
-                            ChatActivity.bitmapAvataFriend.put(id, StaticConfig.STR_DEFAULT_URI);
+                            ChatActivity.bitmapAvataFriend.put(id, StaticConfig.AVATA);
                         }
 
                         mapMark.put(id, null);
