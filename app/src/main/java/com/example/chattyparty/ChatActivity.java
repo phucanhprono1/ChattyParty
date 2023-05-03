@@ -304,7 +304,7 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //                                    byte[] decodedString = Base64.decode(avataStr, Base64.DEFAULT);
                                     ChatActivity.bitmapAvataFriend.put(id, avataStr);
                                 }else{
-                                    ChatActivity.bitmapAvataFriend.put(id, StaticConfig.STR_DEFAULT_URI);
+                                    ChatActivity.bitmapAvataFriend.put(id, StaticConfig.AVATA);
                                 }
                                 notifyDataSetChanged();
                             }
