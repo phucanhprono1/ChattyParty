@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.chattyparty.data.StaticConfig;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -68,6 +69,7 @@ public class MainProfile extends AppCompatActivity {
 
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        StaticConfig.UID = user.getUid();
         findViewById(R.id.btnchange_profile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,9 +89,11 @@ public class MainProfile extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     String name = dataSnapshot.child("name").getValue(String.class);
+                    StaticConfig.NAME = name;
                     username.setText(name);
                     String uemail = dataSnapshot.child("email").getValue(String.class);
                     email.setText(uemail);
+                    StaticConfig.EMAIL = uemail;
                     String ucity = dataSnapshot.child("city").getValue(String.class);
                     city.setText(ucity);
                     String ucountry = dataSnapshot.child("country").getValue(String.class);
@@ -99,6 +103,7 @@ public class MainProfile extends AppCompatActivity {
                     String ubio = dataSnapshot.child("bio").getValue(String.class);
                     bio.setText(ubio);
                     String tmp=dataSnapshot.child("avata").getValue(String.class);
+                    StaticConfig.AVATA = tmp;
 //                    Uri avt =  Uri.parse(tmp);
                     Glide.with(getApplicationContext()).load(tmp).override(150,150)
                             .placeholder(R.drawable.placeholder)

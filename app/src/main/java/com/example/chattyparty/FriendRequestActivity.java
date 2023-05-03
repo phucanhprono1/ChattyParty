@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +51,14 @@ public class FriendRequestActivity extends AppCompatActivity {
                 friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            FriendRequest friendRequest = dataSnapshot.getValue(FriendRequest.class);
+                        Gson gson = new Gson();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String json = gson.toJson(child.getValue());
+                            FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
                             friendRequests.add(friendRequest);
+                            friendRequestAdapter.setFriendRequests(friendRequests);
                         }
-                        friendRequestAdapter.setFriendRequests(friendRequests);
+
                         swipeRefreshLayout.setRefreshing(false);
                     }
 
@@ -68,14 +72,16 @@ public class FriendRequestActivity extends AppCompatActivity {
         friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    FriendRequest friendRequest = dataSnapshot.getValue(FriendRequest.class);
+//                ArrayList<FriendRequest> friendRequests = new ArrayList<>();
+                Gson gson = new Gson();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String json = gson.toJson(child.getValue());
+                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
                     friendRequests.add(friendRequest);
+                    friendRequestAdapter.setFriendRequests(friendRequests);
                 }
-                friendRequestAdapter.setFriendRequests(friendRequests);
-                recyclerView.setAdapter(friendRequestAdapter);
+
+//                recyclerView.setAdapter(friendRequestAdapter);
             }
 
             @Override
@@ -85,7 +91,7 @@ public class FriendRequestActivity extends AppCompatActivity {
         });
         friendRequestAdapter = new FriendRequestAdapter(friendRequests);
         recyclerView.setLayoutManager(new LinearLayoutManager(FriendRequestActivity.this, LinearLayoutManager.VERTICAL, false));
-//        recyclerView.setAdapter(friendRequestAdapter);
+        recyclerView.setAdapter(friendRequestAdapter);
     }
 }
 
