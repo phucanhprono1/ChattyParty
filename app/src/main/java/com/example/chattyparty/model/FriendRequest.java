@@ -5,10 +5,21 @@ public class FriendRequest {
     private String sender;
     private String senderImage;
     private String senderName;
+    private String idRoom;
+    private String id;
 
 
 
+    private String name, email, avata;
     private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getIdRoom() {
         return idRoom;
@@ -50,53 +61,8 @@ public class FriendRequest {
         this.avata = avata;
     }
 
-    private String idRoom;
-    private String id;
 
-//    public String getIdSender() {
-//        return idSender;
-//    }
-//
-//    public void setIdSender(String idSender) {
-//        this.idSender = idSender;
-//    }
-//
-//    public String getIdReceiver() {
-//        return idReceiver;
-//    }
-//
-//    public void setIdReceiver(String idReceiver) {
-//        this.idReceiver = idReceiver;
-//    }
-//
-//
-//    public String getTxt() {
-//        return txt;
-//    }
-//
-//    public void setTxt(String txt) {
-//        this.txt = txt;
-//    }
-//
-//    public long getTimestamp() {
-//        return timestamp;
-//    }
-//
-//    public void setTimestamp(long timestamp) {
-//        this.timestamp = timestamp;
-//    }
 
-    private String name, email, avata;
-//    private String idSender,idReceiver,txt,onlStatus;
-//    private long timestamp;
-
-//    public String getOnlStatus() {
-//        return onlStatus;
-//    }
-//
-//    public void setOnlStatus(String onlStatus) {
-//        this.onlStatus = onlStatus;
-//    }
 
     public String getReceiver() {
         return receiver;
@@ -133,20 +99,16 @@ public class FriendRequest {
     public FriendRequest() {
     }
 
-    public String getStatus() {
-        return status;
-    }
 
-    public FriendRequest(String receiver, String sender, String senderImage, String senderName, String status) {
+
+    public FriendRequest(String receiver, String sender, String senderImage, String senderName) {
         this.receiver = receiver;
         this.sender = sender;
         this.senderImage = senderImage;
         this.senderName = senderName;
-        this.status = status;
+
 
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+
 }

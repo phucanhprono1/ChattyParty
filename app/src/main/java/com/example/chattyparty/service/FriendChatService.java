@@ -196,7 +196,7 @@ public class FriendChatService extends Service {
                 ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             } else {
                 Intent activityIntent = new Intent(this, MainActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
                 NotificationCompat.Builder notificationBuilder = new
                         NotificationCompat.Builder(this)
                         .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_notify_group))

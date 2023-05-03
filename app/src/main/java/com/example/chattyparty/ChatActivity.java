@@ -125,7 +125,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                                     // Create the notification payload
                                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
                                     builder.setSmallIcon(R.drawable.ic_notification);
-                                    builder.setContentTitle(SharedPreferenceHelper.getInstance(getApplicationContext()).getUserInfo().name);
+                                    builder.setContentTitle(StaticConfig.NAME);
                                     builder.setContentText(newMessage.text);
                                     builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
                                     builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
@@ -213,6 +213,44 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 newMessage.idReceiver = roomId;
                 newMessage.timestamp = System.currentTimeMillis();
                 FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("message/" + roomId).push().setValue(newMessage);
+                if (Build.VERSION.SDK_INT >= 24){
+                    if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
+                    }
+                    else {
+                        if (!newMessage.idSender.equals(StaticConfig.UID)) {
+                            // Create the notification payload
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
+                            builder.setSmallIcon(R.drawable.ic_notification);
+                            builder.setContentTitle(StaticConfig.NAME);
+                            builder.setContentText(content);
+                            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+
+                            // Create the notification channel (required for Android Oreo and above)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
+                                NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                                notificationManager.createNotificationChannel(channel);
+                            }
+
+                            // Send the notification
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
+                            }
+                            notificationManager.notify(0, builder.build());
+
+                        }
+                    }
+                }
             }
         }
     }

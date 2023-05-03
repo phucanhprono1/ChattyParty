@@ -165,10 +165,19 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String json = gson.toJson(child.getValue());
                     FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+                    if (listFriendID == null) {
+                        listFriendID = new ArrayList<>();
+                    }
+
+                    if (listFriendID1 == null) {
+                        listFriendID1 = new ArrayList<>();
+                    }
                     if(friendRequest.getStatus().equals("accepted")&&friendDB.checkFriendExist(friendRequest.getSender())==false&&checkFirebaseFriend(friendRequest.getSender())==false){
                         addFriend(friendRequest.getSender(), true);
+
                         listFriendID.add(friendRequest.getSender());
                         listFriendID1.add(friendRequest.getSender());
+
                         Friend friend = new Friend();
                         friend.id = friendRequest.getId();
                         friend.avata = friendRequest.getAvata();
@@ -238,7 +247,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
     }
     public boolean checkFirebaseFriend(String idFriend) {
-        if (listFriendID != null) {
+        if (listFriendID1 != null&& listFriendID!=null) {
             for (String id : listFriendID1) {
                 if (id.equals(idFriend)) {
                     return true;
@@ -265,11 +274,13 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         listFriendID.clear();
+
         dataListFriend.getListFriend().clear();
         adapter.notifyDataSetChanged();
         friendDB.dropDB();
         detectFriendOnline.cancel();
         getListFriendUId();
+//        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     String text;
@@ -414,12 +425,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         friendRequestMap.put("avata",currUser.avata);
                         friendRequestMap.put("name",currUser.name);
                         friendRequestMap.put("idRoom",currUser.idRoom);
-                        friendRequestMap.put("idReceiver","0");
-                        friendRequestMap.put("idSender","0");
-                        friendRequestMap.put("txt","");
-                        friendRequestMap.put("timestamp",0L);
 
-                        friendRequestMap.put("onlStatus",false);
                         DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
                         friendRequestRef.child(idFriend).child(currentUserID).setValue(friendRequestMap)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
