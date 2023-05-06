@@ -840,6 +840,8 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                             }
                                         });
                                 FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests").child(StaticConfig.UID).child(idFriend).removeValue();
+                                FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests").child(idFriend).child(StaticConfig.UID).removeValue();
+
                             }
                         }
 
