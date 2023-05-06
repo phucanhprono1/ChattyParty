@@ -127,8 +127,9 @@ public class NewsfeedActivity extends AppCompatActivity {
                 String timeAgo=caculateTimeAgo(model.getDatePost());
                 holder.timeAgo.setText(timeAgo);
                 holder.username.setText(model.getUsername());
-
-                Glide.with(holder.itemView).load(model.getPostImageURL()).into(((MyViewHolder)holder).postImage);
+                int x= holder.postImage.getWidth();
+                int y = holder.postImage.getHeight();
+                Glide.with(holder.itemView).load(model.getPostImageURL()).override(x,y).centerCrop().into(((MyViewHolder)holder).postImage);
                 Glide.with(holder.itemView).load(model.getUserProfileImageURL()).into(((MyViewHolder)holder).profileImage);
                 holder.countLikes(postKey,mUser.getUid(),likeRef);
                 holder.countComments(postKey,mUser.getUid(),CommentRef);
