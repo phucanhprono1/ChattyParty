@@ -66,7 +66,11 @@ public final class FriendDB extends SQLiteOpenHelper{
             addFriend(friend);
         }
     }
-
+    public void deleteFriend(String friendId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(FeedEntry.TABLE_NAME, FeedEntry.COLUMN_NAME_ID + "=?", new String[]{friendId});
+        db.close();
+    }
     public ListFriend getListFriend() {
         ListFriend listFriend = new ListFriend();
         SQLiteDatabase db = this.getReadableDatabase();
