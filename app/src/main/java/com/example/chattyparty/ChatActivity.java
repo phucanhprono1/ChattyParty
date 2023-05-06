@@ -76,6 +76,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Intent intentData = getIntent();
+        Log.d(TAG, "onCreate: " + StaticConfig.AVATA);
         idFriend = intentData.getCharSequenceArrayListExtra(StaticConfig.INTENT_KEY_CHAT_ID);
         roomId = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_ROOM_ID);
         String nameFriend = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_FRIEND);
@@ -86,12 +87,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         btnSend = (ImageView) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(this);
 
-        String avtUser = SharedPreferenceHelper.getInstance(this).getUserInfo().avata;
-        if (!avtUser.equals(StaticConfig.STR_DEFAULT_URI)) {
+        String avtUser = StaticConfig.AVATA;
+        if (!avtUser.equals(StaticConfig.AVATA)) {
 
             bitmapAvataUser = avtUser;
         } else {
-            bitmapAvataUser = StaticConfig.STR_DEFAULT_URI;
+            bitmapAvataUser = StaticConfig.AVATA;
         }
 
         editWriteMessage = (EditText) findViewById(R.id.editWriteMessage);
@@ -300,7 +301,7 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() != null) {
                                 String avataStr = (String) dataSnapshot.getValue();
-                                if(!avataStr.equals(StaticConfig.STR_DEFAULT_URI)) {
+                                if(!avataStr.equals(StaticConfig.AVATA)) {
 //                                    byte[] decodedString = Base64.decode(avataStr, Base64.DEFAULT);
                                     ChatActivity.bitmapAvataFriend.put(id, avataStr);
                                 }else{

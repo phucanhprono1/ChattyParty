@@ -663,7 +663,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         idFriend.add(id);
                         intent.putCharSequenceArrayListExtra(StaticConfig.INTENT_KEY_CHAT_ID, idFriend);
                         intent.putExtra(StaticConfig.INTENT_KEY_CHAT_ROOM_ID, idRoom);
-                        intent.putExtra(StaticConfig.STR_DEFAULT_URI, avata);
+                        intent.putExtra(StaticConfig.AVATA, avata);
 
                         ChatActivity.bitmapAvataFriend = new HashMap<>();
                         if (!avata.equals(StaticConfig.STR_DEFAULT_URI)) {
@@ -783,8 +783,8 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mapMark.put(id, true);
             }
         }
-        if (listFriend.getListFriend().get(position).avata.equals(StaticConfig.STR_DEFAULT_URI)) {
-            Glide.with(holder.itemView).load(StaticConfig.STR_DEFAULT_URI).into(((ItemFriendViewHolder) holder).avata);
+        if (listFriend.getListFriend().get(position).avata.equals(StaticConfig.AVATA)) {
+            Glide.with(holder.itemView).load(StaticConfig.AVATA).into(((ItemFriendViewHolder) holder).avata);
         } else {
 
 //            byte[] decodedString = Base64.decode(listFriend.getListFriend().get(position).avata, Base64.DEFAULT);
