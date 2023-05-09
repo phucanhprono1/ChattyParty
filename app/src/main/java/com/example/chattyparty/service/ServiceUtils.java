@@ -8,7 +8,6 @@ import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.os.IBinder;
 
-import com.example.chattyparty.data.SharedPreferenceHelper;
 import com.example.chattyparty.data.StaticConfig;
 import com.example.chattyparty.model.Friend;
 import com.example.chattyparty.model.ListFriend;
@@ -112,7 +111,7 @@ public class ServiceUtils {
 
     public static void updateUserStatus(Context context){
         if(isNetworkConnected(context)) {
-            String uid = SharedPreferenceHelper.getInstance(context).getUID();
+            String uid = StaticConfig.UID;
             if (!uid.equals("")) {
                 FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("users/" + uid + "/status/isOnline").setValue(true);
                 FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("users/" + uid + "/status/timestamp").setValue(System.currentTimeMillis());
@@ -130,7 +129,7 @@ public class ServiceUtils {
                         if (dataSnapshot.getValue() != null) {
                             HashMap mapStatus = (HashMap) dataSnapshot.getValue();
                             if ((boolean) mapStatus.get("isOnline") && (System.currentTimeMillis() - (long) mapStatus.get("timestamp")) > StaticConfig.TIME_TO_OFFLINE) {
-                                FirebaseDatabase.getInstance().getReference().child("users/" + fid + "/status/isOnline").setValue(false);
+                                FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("users/" + fid + "/status/isOnline").setValue(false);
                             }
                         }
                     }

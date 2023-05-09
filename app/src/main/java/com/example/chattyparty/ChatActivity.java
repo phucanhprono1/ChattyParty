@@ -41,7 +41,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.example.chattyparty.data.SharedPreferenceHelper;
+
 import com.example.chattyparty.data.StaticConfig;
 import com.example.chattyparty.model.Consersation;
 import com.example.chattyparty.model.Message;
@@ -321,7 +321,7 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof ItemMessageUserHolder) {
             ((ItemMessageUserHolder) holder).txtContent.setText(consersation.getListMessageData().get(position).text);
             if (bitmapAvataUser != null) {
-                Glide.with(holder.itemView).load(((ItemMessageUserHolder) holder).avata);
+                Glide.with(holder.itemView).load(StaticConfig.AVATA).into(((ItemMessageUserHolder) holder).avata);
             }
         }
     }

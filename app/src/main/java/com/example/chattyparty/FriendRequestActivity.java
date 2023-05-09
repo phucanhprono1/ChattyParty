@@ -96,50 +96,12 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
 
     @Override
     public void onAcceptClick(FriendRequest friendRequest) {
-        friendRequests.clear();
-        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
-                Gson gson = new Gson();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    String json = gson.toJson(child.getValue());
-                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                    friendRequests.add(friendRequest);
-                    friendRequestAdapter.setFriendRequests(friendRequests);
-                }
 
-                swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     @Override
     public void onDeleteClick(FriendRequest friendRequest) {
-        friendRequests.clear();
-        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
-                Gson gson = new Gson();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    String json = gson.toJson(child.getValue());
-                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                    friendRequests.add(friendRequest);
-                    friendRequestAdapter.setFriendRequests(friendRequests);
-                }
 
-                swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 }
 

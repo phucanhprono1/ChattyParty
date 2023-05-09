@@ -10,20 +10,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.chattyparty.data.SharedPreferenceHelper;
 import com.example.chattyparty.data.StaticConfig;
-import com.example.chattyparty.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.HashMap;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -97,33 +89,11 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    //    private void goToMainActivity(FirebaseUser user) {
-//        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//        startActivity(intent);
-//        finish();
-//    }
-    void saveUserInfo() {
-        FirebaseDatabase.getInstance().getReference().child("users/" + StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                HashMap hashUser = (HashMap) dataSnapshot.getValue();
-                User userInfo = new User();
-                userInfo.name = (String) hashUser.get("name");
-                userInfo.email = (String) hashUser.get("email");
-                userInfo.avata = (String) hashUser.get("avata");
-                SharedPreferenceHelper.getInstance(LoginActivity.this).saveUserInfo(userInfo);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
     private void updateUI(FirebaseUser user) {
         StaticConfig.UID = user.getUid();
-        saveUserInfo();
+
         Intent intent = new Intent( LoginActivity.this, MainProfile.class);
         startActivity(intent);
     }

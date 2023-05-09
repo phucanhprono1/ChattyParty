@@ -41,13 +41,26 @@ public class MainProfile extends AppCompatActivity {
     Button chat;
     Button feed;
     Button friend_request;
+    private CountDownTimer detectFriendOnline;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_profile);
+        detectFriendOnline = new CountDownTimer(System.currentTimeMillis(), StaticConfig.TIME_TO_REFRESH) {
+            @Override
+            public void onTick(long l) {
 
+                ServiceUtils.updateUserStatus(getApplicationContext());
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        };
+        detectFriendOnline.start();
         avatar = findViewById(R.id.profile_image);
         username = findViewById(R.id.editUsername);
         email = findViewById(R.id.email);

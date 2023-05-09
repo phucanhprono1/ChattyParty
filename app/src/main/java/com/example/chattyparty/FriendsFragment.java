@@ -147,6 +147,38 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     if (idDeleted.equals(friend.id)) {
                         dataListFriend.getListFriend().remove(friend);
                         friendDB.deleteFriend(idDeleted);
+                        listFriendID1.remove(idDeleted);
+                        listFriendID.remove(idDeleted);
+                        Query query = friendRef.child(StaticConfig.UID).orderByValue().equalTo(idDeleted);
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                                    childSnapshot.getRef().removeValue();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                        Query query1 = friendRef.child(idDeleted).orderByValue().equalTo(StaticConfig.UID);
+                        query1.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                                        childSnapshot.getRef().removeValue();
+                                    }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
                         break;
                     }
                 }
@@ -165,6 +197,17 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String json = gson.toJson(child.getValue());
                     FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+                    // Check if this friend request already exists in the list
+                    boolean isExistingRequest = false;
+                    for (Friend existingFriend : dataListFriend.getListFriend()) {
+                        if (existingFriend.id.equals(friendRequest.getSender())) {
+                            isExistingRequest = true;
+                            break;
+                        }
+                    }
+                    if (isExistingRequest) {
+                        continue;
+                    }
                     if (listFriendID == null) {
                         listFriendID = new ArrayList<>();
                     }
@@ -172,51 +215,9 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     if (listFriendID1 == null) {
                         listFriendID1 = new ArrayList<>();
                     }
+
                     if(friendRequest.getStatus().equals("accepted")&&friendDB.checkFriendExist(friendRequest.getSender())==false&&checkFirebaseFriend(friendRequest.getSender())==false){
-                        addFriend(friendRequest.getSender(), true);
 
-                        listFriendID.add(friendRequest.getSender());
-                        listFriendID1.add(friendRequest.getSender());
-
-                        Friend friend = new Friend();
-                        friend.id = friendRequest.getId();
-                        friend.avata = friendRequest.getAvata();
-                        friend.email = friendRequest.getEmail();
-                        friend.name = friendRequest.getName();
-                        friend.idRoom = friendRequest.getIdRoom();
-
-                        dataListFriend.getListFriend().add(friend);
-                        friendDB.addFriend(friend);
-//                        Log.d(TAG, "onDataChange: " + StaticConfig.FRIEND_REQUEST.id);
-                        adapter.notifyDataSetChanged();
-                    } else if (friendRequest.getStatus().equals("rejected")) {
-                        // The friend request has been rejected
-//                                Toast.makeText(getContext(), "Friend request rejected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle onCancelled event
-            }
-        });
-        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Gson gson = new Gson();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    String json = gson.toJson(child.getValue());
-                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                    if (listFriendID == null) {
-                        listFriendID = new ArrayList<>();
-                    }
-
-                    if (listFriendID1 == null) {
-                        listFriendID1 = new ArrayList<>();
-                    }
-                    if(friendRequest.getStatus().equals("accepted")&&friendDB.checkFriendExist(friendRequest.getSender())==false&&checkFirebaseFriend(friendRequest.getSender())==false){
                         addFriend(friendRequest.getSender(), true);
 
                         listFriendID.add(friendRequest.getSender());
@@ -324,9 +325,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         detectFriendOnline.cancel();
         getListFriendUId();
         mSwipeRefreshLayout.setRefreshing(false);
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        startActivity(intent);
-        getActivity().finish();
+
     }
 
     String text;
@@ -600,6 +599,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         user.idRoom = id.compareTo(StaticConfig.UID) > 0 ? (StaticConfig.UID + id).hashCode() + "" : "" + (id + StaticConfig.UID).hashCode();
                         dataListFriend.getListFriend().add(user);
                         friendDB.addFriend(user);
+
                     }
                     getAllFriendInfo(index + 1);
                 }
