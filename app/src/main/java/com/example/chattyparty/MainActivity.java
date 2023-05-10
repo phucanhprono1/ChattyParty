@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout = null;
     public static String STR_FRIEND_FRAGMENT = "FRIEND";
     public static String STR_GROUP_FRAGMENT = "GROUP";
-    public static String STR_INFO_FRAGMENT = "INFO";
+
 
     private FloatingActionButton floatButton;
     private ViewPagerAdapter adapter;
@@ -45,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser user;
-    DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
-    @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -60,37 +59,17 @@ public class MainActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         floatButton = (FloatingActionButton) findViewById(R.id.fab);
         initTab();
-        initFirebase();
+
     }
 
-//    private void setSupportActionBar(Toolbar toolbar) {
-//    }
 
-    private void initFirebase() {
-        //Khoi tao thanh phan de dang nhap, dang ky
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    StaticConfig.UID = user.getUid();
-                } else {
-                    MainActivity.this.finish();
-                    // User is signed in
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
-            }
-        };
-    }
+
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+
         ServiceUtils.stopServiceFriendChat(getApplicationContext(), false);
     }
 
@@ -124,12 +103,12 @@ public class MainActivity extends AppCompatActivity {
         int[] tabIcons = {
                 R.drawable.ic_tab_person,
                 R.drawable.ic_tab_group,
-//                R.drawable.ic_tab_infor
+
         };
 
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-//        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -138,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         GroupFragment groupFragment = new GroupFragment();
         adapter.addFrag(friendsFragment, STR_FRIEND_FRAGMENT);
         adapter.addFrag(groupFragment, STR_GROUP_FRAGMENT);
-//        adapter.addFrag(new UserProfileFragment(), STR_INFO_FRAGMENT);
+
         floatButton.setOnClickListener(((FriendsFragment) adapter.getItem(0)).onClickFloatButton.getInstance(this));
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(2);
