@@ -102,9 +102,18 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     Iterator iterator = mapListGroup.keySet().iterator();
                     while (iterator.hasNext()){
                         String idGroup = (String) mapListGroup.get(iterator.next().toString());
-                        Group newGroup = new Group();
-                        newGroup.id = idGroup;
-                        listGroup.add(newGroup);
+                        boolean isExisting = false;
+                        for (Group group : listGroup) {
+                            if (group.id.equals(idGroup)) {
+                                isExisting = true;
+                                break;
+                            }
+                        }
+                        if (!isExisting) {
+                            Group newGroup = new Group();
+                            newGroup.id = idGroup;
+                            listGroup.add(newGroup);
+                        }
                     }
                     getGroupInfo(0);
                 }else{
@@ -135,6 +144,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if(indexGroup == listGroup.size()){
             adapter.notifyDataSetChanged();
             mSwipeRefreshLayout.setRefreshing(false);
+            return;
         }else {
             FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("group/"+listGroup.get(indexGroup).id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -156,7 +166,7 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    mSwipeRefreshLayout.setRefreshing(false);
                 }
             });
         }

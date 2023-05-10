@@ -4,7 +4,6 @@ import static android.content.ContentValues.TAG;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,7 +11,6 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -31,10 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,14 +38,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import com.example.chattyparty.data.StaticConfig;
-import com.example.chattyparty.model.Consersation;
+import com.example.chattyparty.model.Conversation;
 import com.example.chattyparty.model.Message;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import android.Manifest;
@@ -63,7 +56,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private ListMessageAdapter adapter;
     private String roomId;
     private ArrayList<CharSequence> idFriend;
-    private Consersation consersation;
+    private Conversation conversation;
     private ImageView btnSend;
     private EditText editWriteMessage;
     private LinearLayoutManager linearLayoutManager;
@@ -83,7 +76,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         String avataFriend = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_AVATA);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
 //        String deviceToken = FirebaseInstanceId.getInstance().getToken();
-        consersation = new Consersation();
+        conversation = new Conversation();
         btnSend = (ImageView) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(this);
 
@@ -101,7 +94,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
             recyclerChat = findViewById(R.id.recyclerChat);
             recyclerChat.setLayoutManager(linearLayoutManager);
-            adapter = new ListMessageAdapter(this, consersation, bitmapAvataFriend, bitmapAvataUser);
+            adapter = new ListMessageAdapter(this, conversation, bitmapAvataFriend, bitmapAvataUser);
             FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("message/" + roomId).addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -112,9 +105,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         newMessage.idReceiver = (String) mapMessage.get("idReceiver");
                         newMessage.text = (String) mapMessage.get("text");
                         newMessage.timestamp = (long) mapMessage.get("timestamp");
-                        consersation.getListMessageData().add(newMessage);
+                        conversation.getListMessageData().add(newMessage);
                         adapter.notifyDataSetChanged();
-                        linearLayoutManager.scrollToPosition(consersation.getListMessageData().size() - 1);
+                        linearLayoutManager.scrollToPosition(conversation.getListMessageData().size() - 1);
                         // Send a push notification to the user
                         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                         if (Build.VERSION.SDK_INT >= 24){
@@ -260,14 +253,14 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private Consersation consersation;
+    private Conversation conversation;
     private HashMap<String, String> bitmapAvata;
     private HashMap<String, DatabaseReference> bitmapAvataDB;
     private String bitmapAvataUser;
 
-    public ListMessageAdapter(Context context, Consersation consersation, HashMap<String, String> bitmapAvata, String bitmapAvataUser) {
+    public ListMessageAdapter(Context context, Conversation conversation, HashMap<String, String> bitmapAvata, String bitmapAvataUser) {
         this.context = context;
-        this.consersation = consersation;
+        this.conversation = conversation;
         this.bitmapAvata = bitmapAvata;
         this.bitmapAvataUser = bitmapAvataUser;
         bitmapAvataDB = new HashMap<>();
@@ -288,12 +281,12 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ItemMessageFriendHolder) {
-            ((ItemMessageFriendHolder) holder).txtContent.setText(consersation.getListMessageData().get(position).text);
-            String currentAvata = bitmapAvata.get(consersation.getListMessageData().get(position).idSender);
+            ((ItemMessageFriendHolder) holder).txtContent.setText(conversation.getListMessageData().get(position).text);
+            String currentAvata = bitmapAvata.get(conversation.getListMessageData().get(position).idSender);
             if (currentAvata != null) {
                 Glide.with(holder.itemView).load(currentAvata).into(((ItemMessageFriendHolder) holder).avata);
             } else {
-                final String id = consersation.getListMessageData().get(position).idSender;
+                final String id = conversation.getListMessageData().get(position).idSender;
                 if(bitmapAvataDB.get(id) == null){
                     bitmapAvataDB.put(id, FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("users/" + id + "/avata"));
                     bitmapAvataDB.get(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -319,7 +312,7 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
         } else if (holder instanceof ItemMessageUserHolder) {
-            ((ItemMessageUserHolder) holder).txtContent.setText(consersation.getListMessageData().get(position).text);
+            ((ItemMessageUserHolder) holder).txtContent.setText(conversation.getListMessageData().get(position).text);
             if (bitmapAvataUser != null) {
                 Glide.with(holder.itemView).load(StaticConfig.AVATA).into(((ItemMessageUserHolder) holder).avata);
             }
@@ -328,12 +321,12 @@ class ListMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return consersation.getListMessageData().get(position).idSender.equals(StaticConfig.UID) ? ChatActivity.VIEW_TYPE_USER_MESSAGE : ChatActivity.VIEW_TYPE_FRIEND_MESSAGE;
+        return conversation.getListMessageData().get(position).idSender.equals(StaticConfig.UID) ? ChatActivity.VIEW_TYPE_USER_MESSAGE : ChatActivity.VIEW_TYPE_FRIEND_MESSAGE;
     }
 
     @Override
     public int getItemCount() {
-        return consersation.getListMessageData().size();
+        return conversation.getListMessageData().size();
     }
 }
 
