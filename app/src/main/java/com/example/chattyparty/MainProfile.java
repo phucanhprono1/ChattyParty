@@ -13,9 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.chattyparty.data.FriendDB;
+import com.example.chattyparty.data.GroupDB;
 import com.example.chattyparty.data.StaticConfig;
+import com.example.chattyparty.model.Group;
 import com.example.chattyparty.service.ServiceUtils;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,6 +29,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 //import com.squareup.picasso.Picasso;
@@ -42,6 +49,9 @@ public class MainProfile extends AppCompatActivity {
     Button feed;
     Button friend_request;
     private CountDownTimer detectFriendOnline;
+    FriendDB friendDB;
+    GroupDB groupDB;
+    DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -61,6 +71,8 @@ public class MainProfile extends AppCompatActivity {
             }
         };
         detectFriendOnline.start();
+
+
         avatar = findViewById(R.id.profile_image);
         username = findViewById(R.id.editUsername);
         email = findViewById(R.id.email);
@@ -85,6 +97,29 @@ public class MainProfile extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         StaticConfig.UID = user.getUid();
+        friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue() != null) {
+                    HashMap mapRecord = (HashMap) dataSnapshot.getValue();
+                    Iterator listKey = mapRecord.keySet().iterator();
+                    while (listKey.hasNext()) {
+                        String key = listKey.next().toString();
+                        Log.d("FriendRequestActivity", "onDataChange: " + mapRecord.get(key).toString());
+
+                        StaticConfig.LIST_FRIEND_ID.add(mapRecord.get(key).toString());
+                    }
+
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
         findViewById(R.id.btnchange_profile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,6 +134,8 @@ public class MainProfile extends AppCompatActivity {
                 startActivity(i);
             }
         });
+        friendDB = new FriendDB(getApplicationContext());
+        groupDB = new GroupDB(getApplicationContext());
         usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -152,12 +189,15 @@ public class MainProfile extends AppCompatActivity {
     private void goLoginScreen() {
         Intent intent = new Intent(this, LoginOptionActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
         startActivity(intent);
     }
 
     public void logout(View view) {
         FirebaseAuth.getInstance().signOut();
         LoginManager.getInstance().logOut();
+        friendDB.dropDB();
+        groupDB.dropDB();
         goLoginScreen();
     }
 }

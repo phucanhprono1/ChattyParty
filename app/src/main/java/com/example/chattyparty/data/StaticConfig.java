@@ -3,6 +3,9 @@ package com.example.chattyparty.data;
 
 import com.example.chattyparty.model.Friend;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class StaticConfig {
     public static int REQUEST_CODE_REGISTER = 2000;
     public static String STR_EXTRA_ACTION_LOGIN = "login";
@@ -25,5 +28,5 @@ public class StaticConfig {
     public static long TIME_TO_OFFLINE = 2 * 1000;
     public static String ID_FRIEND_REQ = null;
     public static Friend FRIEND_REQUEST = null;
-
+    public static ArrayList<String> LIST_FRIEND_ID = new ArrayList<>();
 }

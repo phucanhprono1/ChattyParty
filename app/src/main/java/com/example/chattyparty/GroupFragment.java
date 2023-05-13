@@ -101,19 +101,11 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     HashMap mapListGroup = (HashMap) dataSnapshot.getValue();
                     Iterator iterator = mapListGroup.keySet().iterator();
                     while (iterator.hasNext()){
+
                         String idGroup = (String) mapListGroup.get(iterator.next().toString());
-                        boolean isExisting = false;
-                        for (Group group : listGroup) {
-                            if (group.id.equals(idGroup)) {
-                                isExisting = true;
-                                break;
-                            }
-                        }
-                        if (!isExisting) {
-                            Group newGroup = new Group();
-                            newGroup.id = idGroup;
-                            listGroup.add(newGroup);
-                        }
+                        Group newGroup = new Group();
+                        newGroup.id = idGroup;
+                        listGroup.add(newGroup);
                     }
                     getGroupInfo(0);
                 }else{
@@ -221,7 +213,6 @@ public class GroupFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 if(((String)listGroup.get(position).groupInfo.get("admin")).equals(StaticConfig.UID)) {
                     Toast.makeText(getActivity(), "Admin cannot leave group", Toast.LENGTH_LONG).show();
                 }else{
-//                    waitingLeavingGroup.show();
                     Group groupLeaving = listGroup.get(position);
                     leaveGroup(groupLeaving);
                 }
