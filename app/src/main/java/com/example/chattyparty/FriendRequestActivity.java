@@ -200,7 +200,6 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
             @Override
             public void handleOnBackPressed() {
                 Intent intent = new Intent(FriendRequestActivity.this, MainProfile.class);
-                StaticConfig.LIST_FRIEND_REQUEST.clear();
                 startActivity(intent);
                 finish();
             }
