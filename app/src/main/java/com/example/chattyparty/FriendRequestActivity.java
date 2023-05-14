@@ -98,7 +98,7 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
                                 friendRequestAdapter.setFriendRequests(friendRequests);
                             }
 
-                            swipeRefreshLayout.setRefreshing(false);
+
                         }
 
                         @Override
@@ -106,8 +106,12 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
 
                         }
                     });
+                    swipeRefreshLayout.setRefreshing(false);
+                }else {
+                    Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(true);
                 }
-                }
+            }
 
         });
         if(connected){
@@ -166,7 +170,7 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
         }
         else {
             Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-            swipeRefreshLayout.setEnabled(true);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
 
@@ -211,17 +215,7 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
 //                Toast.makeText(getContext(), "Add friend success", Toast.LENGTH_SHORT);
         }
     }
-    public boolean checkFirebaseFriend(String idFriend) {
-        if (StaticConfig.LIST_FRIEND_ID != null) {
-            for (String id : StaticConfig.LIST_FRIEND_ID) {
-                if (id.equals(idFriend)) {
-                    return true;
-                }
-                else break;
-            }
-        }
-        return false;
-    }
+
     @Override
     public void onAcceptClick(FriendRequest friendRequest) {
 
