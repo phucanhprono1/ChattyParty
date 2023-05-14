@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Khoi tao 3 tab
+     * Khoi tao 2 tab
      */
     private void initTab() {
         tabLayout = (TabLayout) findViewById(R.id.tabs);

@@ -32,13 +32,6 @@ public class GroupDB extends SQLiteOpenHelper{
 
     private static GroupDB instance = null;
 
-//    public static GroupDB getInstance(Context context) {
-//        if (instance == null) {
-//            instance = new GroupDB();
-//            mDbHelper = new GroupDBHelper(context);
-//        }
-//        return instance;
-//    }
 
     public void addGroup(Group group) {
         SQLiteDatabase db = this.getWritableDatabase();

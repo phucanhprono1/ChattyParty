@@ -160,34 +160,15 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
                     // Handle onCancelled event
                 }
             });
-//            friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(DataSnapshot dataSnapshot) {
-//                    if (dataSnapshot.getValue() != null) {
-//                        HashMap mapRecord = (HashMap) dataSnapshot.getValue();
-//                        Iterator listKey = mapRecord.keySet().iterator();
-//                        while (listKey.hasNext()) {
-//                            String key = listKey.next().toString();
-//                            Log.d("FriendRequestActivity", "onDataChange: " + mapRecord.get(key).toString());
-//
-//                            StaticConfig.LIST_FRIEND_ID.add(mapRecord.get(key).toString());
-//                        }
-//
-//
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT);
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                }
-//            });
+            friendRequestAdapter = new FriendRequestAdapter(friendRequests,this,this);
+            recyclerView.setLayoutManager(new LinearLayoutManager(FriendRequestActivity.this, LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(friendRequestAdapter);
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            swipeRefreshLayout.setEnabled(true);
         }
 
-        friendRequestAdapter = new FriendRequestAdapter(friendRequests,this,this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(FriendRequestActivity.this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(friendRequestAdapter);
 
 
     }

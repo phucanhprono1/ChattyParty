@@ -124,15 +124,14 @@ public final class FriendDB extends SQLiteOpenHelper{
         static final String COLUMN_NAME_AVATA = "avata";
     }
 
-    private static final String TEXT_TYPE = " TEXT";
-    private static final String COMMA_SEP = ",";
+
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + FeedEntry.TABLE_NAME + " (" +
                     FeedEntry.COLUMN_NAME_ID + " TEXT PRIMARY KEY," +
-                    FeedEntry.COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_EMAIL + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_ID_ROOM + TEXT_TYPE + COMMA_SEP +
-                    FeedEntry.COLUMN_NAME_AVATA + TEXT_TYPE + " )";
+                    FeedEntry.COLUMN_NAME_NAME + " TEXT" + "," +
+                    FeedEntry.COLUMN_NAME_EMAIL + " TEXT" + "," +
+                    FeedEntry.COLUMN_NAME_ID_ROOM + " TEXT" + "," +
+                    FeedEntry.COLUMN_NAME_AVATA + " TEXT" + " )";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
