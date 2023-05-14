@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.example.chattyparty.data.FriendDB;
 import com.example.chattyparty.data.GroupDB;
 import com.example.chattyparty.data.StaticConfig;
+import com.example.chattyparty.model.FriendRequest;
 import com.example.chattyparty.model.Group;
 import com.example.chattyparty.service.ServiceUtils;
 import com.facebook.login.LoginManager;
@@ -29,6 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,6 +53,7 @@ public class MainProfile extends AppCompatActivity {
     private CountDownTimer detectFriendOnline;
     FriendDB friendDB;
     GroupDB groupDB;
+    DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
     DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +100,9 @@ public class MainProfile extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         StaticConfig.UID = user.getUid();
+        if(StaticConfig.LIST_FRIEND_REQUEST!=null){
+            StaticConfig.LIST_FRIEND_REQUEST.clear();
+        }
         friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -2,6 +2,7 @@ package com.example.chattyparty.data;
 
 
 import com.example.chattyparty.model.Friend;
+import com.example.chattyparty.model.FriendRequest;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -29,4 +30,5 @@ public class StaticConfig {
     public static String ID_FRIEND_REQ = null;
     public static Friend FRIEND_REQUEST = null;
     public static ArrayList<String> LIST_FRIEND_ID = new ArrayList<>();
+    public static ArrayList<FriendRequest> LIST_FRIEND_REQUEST = new ArrayList<>();
 }

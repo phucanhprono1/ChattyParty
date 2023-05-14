@@ -266,6 +266,10 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             getListFriendUId();
         }
+        else {
+            Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
     }
 
     String text;
@@ -794,7 +798,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param idFriend
      */
     private void deleteFriend(final String idFriend) {
-        if (idFriend != null) {
+        if (idFriend != null && fragment.connected) {
             FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend").child(StaticConfig.UID)
                     .orderByValue().equalTo(idFriend).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
