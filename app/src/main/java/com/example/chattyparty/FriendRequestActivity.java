@@ -199,8 +199,8 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                Intent intent = new Intent(FriendRequestActivity.this, MainProfile.class);
-                startActivity(intent);
+//                Intent intent = new Intent(FriendRequestActivity.this, MainProfile.class);
+//                startActivity(intent);
                 finish();
             }
         });
