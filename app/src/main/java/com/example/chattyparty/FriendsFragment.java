@@ -229,16 +229,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 //                Toast.makeText(getContext(), "Add friend success", Toast.LENGTH_SHORT);
         }
     }
-    public boolean checkFirebaseFriend(String idFriend) {
-        if (listFriendID1 != null&& listFriendID!=null) {
-            for (String id : listFriendID1) {
-                if (id.equals(idFriend)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -661,7 +652,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
 
 
-        if (listFriend.getListFriend().get(position).message.text.length() > 0) {
+        if (listFriend.getListFriend().get(position).message.text.length() > 0 && connected) {
             ((ItemFriendViewHolder) holder).txtMessage.setVisibility(View.VISIBLE);
             ((ItemFriendViewHolder) holder).txtTime.setVisibility(View.VISIBLE);
             if (!listFriend.getListFriend().get(position).message.text.startsWith(id)) {
@@ -741,7 +732,7 @@ class ListFriendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
 
-        if (mapQueryOnline.get(id) == null && mapChildListenerOnline.get(id) == null) {
+        if (mapQueryOnline.get(id) == null && mapChildListenerOnline.get(id) == null && connected) {
             mapQueryOnline.put(id, FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users").child(id).child("status"));
             mapChildListenerOnline.put(id, new ChildEventListener() {
                 @Override
