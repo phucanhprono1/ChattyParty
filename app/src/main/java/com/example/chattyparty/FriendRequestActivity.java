@@ -2,6 +2,7 @@ package com.example.chattyparty;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +30,7 @@ import com.example.chattyparty.service.ServiceUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -124,13 +126,12 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
             }
 
         });
-        if(connected){
-            friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                ArrayList<FriendRequest> friendRequests = new ArrayList<>();
-                    Gson gson = new Gson();
-                    for (DataSnapshot child : snapshot.getChildren()) {
+        friendRequestRef.child(StaticConfig.UID).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Gson gson = new Gson();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    try {
                         String json = gson.toJson(child.getValue());
                         FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
                         FriendRequest stt = new FriendRequest();
@@ -147,55 +148,102 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
                         friendRequests.add(friendRequest);
                         StaticConfig.LIST_FRIEND_REQUEST.add(stt);
                         friendRequestAdapter.setFriendRequests(StaticConfig.LIST_FRIEND_REQUEST);
+                    } catch (Exception e) {
+                        // Handle any parsing errors or unexpected data here
+                        e.printStackTrace();
                     }
-
-//                recyclerView.setAdapter(friendRequestAdapter);
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+            }
 
-                }
-            });
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
-            friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Gson gson = new Gson();
-                    for (DataSnapshot child : snapshot.getChildren()) {
-                        String json = gson.toJson(child.getValue());
-                        FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                        // Check if this friend request already exists in the list
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+//        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+////                ArrayList<FriendRequest> friendRequests = new ArrayList<>();
+//                Gson gson = new Gson();
+//                for (DataSnapshot child : snapshot.getChildren()) {
+//                    String json = gson.toJson(child.getValue());
+//                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+//                    FriendRequest stt = new FriendRequest();
+//                    stt.setIdRoom(child.child("idRoom").getValue().toString());
+//                    stt.setId(child.child("id").getValue().toString());
+//                    stt.setReceiver(child.child("receiver").getValue().toString());
+//                    stt.setSender(child.child("sender").getValue().toString());
+//
+//                    stt.setSenderImage(child.child("senderImage").getValue().toString());
+//                    stt.setSenderName(child.child("senderName").getValue().toString());
+//                    stt.setAvata(child.child("avata").getValue().toString());
+//                    stt.setEmail(child.child("email").getValue().toString());
+//
+//                    friendRequests.add(friendRequest);
+//                    StaticConfig.LIST_FRIEND_REQUEST.add(stt);
+//                    friendRequestAdapter.setFriendRequests(StaticConfig.LIST_FRIEND_REQUEST);
+//                }
+//
+////                recyclerView.setAdapter(friendRequestAdapter);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+
+        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Gson gson = new Gson();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String json = gson.toJson(child.getValue());
+                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+                    // Check if this friend request already exists in the list
 
 
-                        if(friendRequest.getStatus().equals("accepted")&&StaticConfig.LIST_FRIEND_ID.contains(friendRequest.getSender())==false){
+                    if(friendRequest.getStatus().equals("accepted")&&StaticConfig.LIST_FRIEND_ID.contains(friendRequest.getSender())==false){
 
-                            addFriend(friendRequest.getSender(), true);
-                            StaticConfig.LIST_FRIEND_ID.add(friendRequest.getSender());
+                        addFriend(friendRequest.getSender(), true);
+                        StaticConfig.LIST_FRIEND_ID.add(friendRequest.getSender());
 
 
-                        } else if (friendRequest.getStatus().equals("rejected")) {
+                    } else if (friendRequest.getStatus().equals("rejected")) {
 
-                        }
                     }
-
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    // Handle onCancelled event
-                }
-            });
+            }
 
-            friendRequestAdapter = new FriendRequestAdapter(StaticConfig.LIST_FRIEND_REQUEST,this,this);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-            friendRequestAdapter.notifyDataSetChanged();
-            recyclerView.setAdapter(friendRequestAdapter);
-        }
-        else {
-            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-            swipeRefreshLayout.setRefreshing(true);
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle onCancelled event
+            }
+        });
+
+        friendRequestAdapter = new FriendRequestAdapter(StaticConfig.LIST_FRIEND_REQUEST,this,this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        friendRequestAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(friendRequestAdapter);
+
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {

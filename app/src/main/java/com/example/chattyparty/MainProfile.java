@@ -3,6 +3,7 @@ package com.example.chattyparty;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.chattyparty.data.FriendDB;
+import com.example.chattyparty.data.FriendRequestDB;
 import com.example.chattyparty.data.GroupDB;
 import com.example.chattyparty.data.StaticConfig;
 import com.example.chattyparty.model.FriendRequest;
@@ -25,6 +27,7 @@ import com.example.chattyparty.service.ServiceUtils;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -53,6 +56,7 @@ public class MainProfile extends AppCompatActivity {
     private CountDownTimer detectFriendOnline;
     FriendDB friendDB;
     GroupDB groupDB;
+    FriendRequestDB friendRequestDB;
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
     DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
     @Override
@@ -74,6 +78,7 @@ public class MainProfile extends AppCompatActivity {
             }
         };
         detectFriendOnline.start();
+        friendRequestDB = new FriendRequestDB(getBaseContext());
 
 
         avatar = findViewById(R.id.profile_image);
@@ -103,6 +108,45 @@ public class MainProfile extends AppCompatActivity {
         if(StaticConfig.LIST_FRIEND_REQUEST!=null){
             StaticConfig.LIST_FRIEND_REQUEST.clear();
         }
+       friendRequestRef.child(user.getUid()).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                Gson gson = new Gson();
+                String json = gson.toJson(dataSnapshot.getValue());
+                FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+
+                Log.d("MainProfile", "onChildAdded: " + friendRequest.getSender() + " " + friendRequest.getReceiver());
+//                friendRequestDB.addFriendRequest(friendRequest);
+                StaticConfig.LIST_FRIEND_REQUEST.add(friendRequest);
+
+                // Kiểm tra và xử lý phần dữ liệu mới nhất
+                if (!friendRequestDB.getAllFriendRequest().contains(friendRequest) && !StaticConfig.LIST_FRIEND_REQUEST.contains(friendRequest)) {
+                    friendRequestDB.addFriendRequest(friendRequest);
+                } else {
+                    friendRequestDB.updateFriendRequest(friendRequest.getSender(), friendRequest.getReceiver());
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                // Xử lý sự kiện khi child đã tồn tại bị thay đổi
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                // Xử lý sự kiện khi child đã tồn tại bị xóa
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                // Xử lý sự kiện khi child đã tồn tại được di chuyển
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Xử lý khi có lỗi xảy ra
+            }
+        });
         friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -1,17 +1,17 @@
 package com.example.chattyparty.model;
 
 public class FriendRequest {
-    private String receiver;
-    private String sender;
-    private String senderImage;
-    private String senderName;
-    private String idRoom;
-    private String id;
+    public String receiver;
+    public String sender;
+    public String senderImage;
+    public String senderName;
+    public String idRoom;
+    public String id;
 
 
 
-    private String name, email, avata;
-    private String status;
+    public String name, email, avata;
+    public String status;
 
     public String getStatus() {
         return status;
