@@ -22,11 +22,14 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.chattyparty.data.FriendDB;
+import com.example.chattyparty.data.FriendRequestDB;
 import com.example.chattyparty.data.StaticConfig;
 import com.example.chattyparty.model.Friend;
 import com.example.chattyparty.model.FriendRequest;
 import com.example.chattyparty.model.ListFriend;
 import com.example.chattyparty.service.ServiceUtils;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -42,8 +45,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-public class FriendRequestActivity extends AppCompatActivity implements FriendRequestAdapter.AcceptClickListener, FriendRequestAdapter.DeleteClickListener {
+public class FriendRequestActivity extends AppCompatActivity  {
     boolean connected = ServiceUtils.isNetworkConnected(FriendRequestActivity.this);
     List<FriendRequest> friendRequests = new ArrayList<>();
     DatabaseReference userRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
@@ -52,6 +56,7 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
     DatabaseReference messageRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("message");
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
     FriendRequestAdapter friendRequestAdapter;
+    FriendRequestDB friendRequestDB;
     SwipeRefreshLayout swipeRefreshLayout;
     private ListFriend dataListFriend = null;
     private ArrayList<String> listFriendID = null;
@@ -63,184 +68,54 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
         setContentView(R.layout.activity_friend_request);
         RecyclerView recyclerView = findViewById(R.id.recyclerView_friend_request);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout_friend_request);
+        friendRequestDB = new FriendRequestDB(getBaseContext());
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 friendRequests.clear();
                 StaticConfig.LIST_FRIEND_REQUEST.clear();
-                if(connected){
-                    friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getValue() != null) {
-                                HashMap mapRecord = (HashMap) dataSnapshot.getValue();
-                                Iterator listKey = mapRecord.keySet().iterator();
-                                while (listKey.hasNext()) {
-                                    String key = listKey.next().toString();
-                                    Log.d("FriendRequestActivity", "onDataChange: " + mapRecord.get(key).toString());
-                                }
-                            } else {
-                                Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT);
+
+                friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getValue() != null) {
+                            HashMap mapRecord = (HashMap) dataSnapshot.getValue();
+                            Iterator listKey = mapRecord.keySet().iterator();
+                            while (listKey.hasNext()) {
+                                String key = listKey.next().toString();
+                                Log.d("FriendRequestActivity", "onDataChange: " + mapRecord.get(key).toString());
                             }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT);
                         }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                        }
-                    });
-                    friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) { // get all friend requests
-                            Gson gson = new Gson();
-                            for (DataSnapshot child : snapshot.getChildren()) {
-                                String json = gson.toJson(child.getValue());
-                                FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                                FriendRequest stt = new FriendRequest();
-                                stt.setIdRoom(child.child("idRoom").getValue().toString());
-                                stt.setId(child.child("id").getValue().toString());
-                                stt.setReceiver(child.child("receiver").getValue().toString());
-                                stt.setSender(child.child("sender").getValue().toString());
-
-                                stt.setSenderImage(child.child("senderImage").getValue().toString());
-                                stt.setSenderName(child.child("senderName").getValue().toString());
-                                stt.setAvata(child.child("avata").getValue().toString());
-                                stt.setEmail(child.child("email").getValue().toString());
-                                friendRequests.add(friendRequest);
-                                StaticConfig.LIST_FRIEND_REQUEST.add(stt);
-                                friendRequestAdapter.setFriendRequests(StaticConfig.LIST_FRIEND_REQUEST);
-                            }
-
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                    swipeRefreshLayout.setRefreshing(false);
-                }else {
-                    Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-            }
-
-        });
-        friendRequestRef.child(StaticConfig.UID).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Gson gson = new Gson();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    try {
-                        String json = gson.toJson(child.getValue());
-                        FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                        FriendRequest stt = new FriendRequest();
-                        stt.setIdRoom(child.child("idRoom").getValue().toString());
-                        stt.setId(child.child("id").getValue().toString());
-                        stt.setReceiver(child.child("receiver").getValue().toString());
-                        stt.setSender(child.child("sender").getValue().toString());
-
-                        stt.setSenderImage(child.child("senderImage").getValue().toString());
-                        stt.setSenderName(child.child("senderName").getValue().toString());
-                        stt.setAvata(child.child("avata").getValue().toString());
-                        stt.setEmail(child.child("email").getValue().toString());
-
-                        friendRequests.add(friendRequest);
-                        StaticConfig.LIST_FRIEND_REQUEST.add(stt);
-                        friendRequestAdapter.setFriendRequests(StaticConfig.LIST_FRIEND_REQUEST);
-                    } catch (Exception e) {
-                        // Handle any parsing errors or unexpected data here
-                        e.printStackTrace();
                     }
-                }
 
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-//        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-////                ArrayList<FriendRequest> friendRequests = new ArrayList<>();
-//                Gson gson = new Gson();
-//                for (DataSnapshot child : snapshot.getChildren()) {
-//                    String json = gson.toJson(child.getValue());
-//                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-//                    FriendRequest stt = new FriendRequest();
-//                    stt.setIdRoom(child.child("idRoom").getValue().toString());
-//                    stt.setId(child.child("id").getValue().toString());
-//                    stt.setReceiver(child.child("receiver").getValue().toString());
-//                    stt.setSender(child.child("sender").getValue().toString());
-//
-//                    stt.setSenderImage(child.child("senderImage").getValue().toString());
-//                    stt.setSenderName(child.child("senderName").getValue().toString());
-//                    stt.setAvata(child.child("avata").getValue().toString());
-//                    stt.setEmail(child.child("email").getValue().toString());
-//
-//                    friendRequests.add(friendRequest);
-//                    StaticConfig.LIST_FRIEND_REQUEST.add(stt);
-//                    friendRequestAdapter.setFriendRequests(StaticConfig.LIST_FRIEND_REQUEST);
-//                }
-//
-////                recyclerView.setAdapter(friendRequestAdapter);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-
-        friendRequestRef.child(StaticConfig.UID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Gson gson = new Gson();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    String json = gson.toJson(child.getValue());
-                    FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-                    // Check if this friend request already exists in the list
-
-
-                    if(friendRequest.getStatus().equals("accepted")&&StaticConfig.LIST_FRIEND_ID.contains(friendRequest.getSender())==false){
-
-                        addFriend(friendRequest.getSender(), true);
-                        StaticConfig.LIST_FRIEND_ID.add(friendRequest.getSender());
-
-
-                    } else if (friendRequest.getStatus().equals("rejected")) {
-
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
                     }
-                }
+                });
 
+                swipeRefreshLayout.setRefreshing(false);
             }
 
+        });
+        FirebaseRecyclerOptions<FriendRequest> options = new FirebaseRecyclerOptions.Builder<FriendRequest>()
+                .setQuery(friendRequestRef.child(StaticConfig.UID), FriendRequest.class)
+                .build();
+        friendRequestAdapter = new FriendRequestAdapter(options, new FriendRequestAdapter.AcceptClickListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle onCancelled event
+            public void onAcceptClick(FriendRequest friendRequest) {
+                // Xử lý sự kiện khi người dùng chấp nhận lời mời
+            }
+        }, new FriendRequestAdapter.DeleteClickListener() {
+            @Override
+            public void onDeleteClick(FriendRequest friendRequest) {
+                // Xử lý sự kiện khi người dùng xóa lời mời
             }
         });
 
-        friendRequestAdapter = new FriendRequestAdapter(StaticConfig.LIST_FRIEND_REQUEST,this,this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        friendRequestAdapter.notifyDataSetChanged();
+
         recyclerView.setAdapter(friendRequestAdapter);
 
 
@@ -297,15 +172,7 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
         }
     }
 
-    @Override
-    public void onAcceptClick(FriendRequest friendRequest) {
 
-    }
-
-    @Override
-    public void onDeleteClick(FriendRequest friendRequest) {
-
-    }
     @Override
     public void onBackPressed() {
         StaticConfig.LIST_FRIEND_REQUEST.clear();
@@ -323,88 +190,84 @@ public class FriendRequestActivity extends AppCompatActivity implements FriendRe
 //        }
 //        return super.onKeyDown(keyCode, event);
 //    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        friendRequestAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        friendRequestAdapter.stopListening();
+    }
 }
 
-class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.ViewHolder> {
-    //DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
+class FriendRequestAdapter extends FirebaseRecyclerAdapter<FriendRequest, FriendRequestAdapter.ViewHolder> {
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
-    private List<FriendRequest> friendRequests;
     private AcceptClickListener acceptClickListener;
     private DeleteClickListener deleteClickListener;
 
     public interface AcceptClickListener {
         void onAcceptClick(FriendRequest friendRequest);
     }
+
     public interface DeleteClickListener {
         void onDeleteClick(FriendRequest friendRequest);
     }
-    public FriendRequestAdapter(List<FriendRequest> friendRequests, AcceptClickListener acceptClickListener, DeleteClickListener deleteClickListener) {
-        this.friendRequests = friendRequests;
+
+    public FriendRequestAdapter(@NonNull FirebaseRecyclerOptions<FriendRequest> options, AcceptClickListener acceptClickListener, DeleteClickListener deleteClickListener) {
+        super(options);
         this.acceptClickListener = acceptClickListener;
         this.deleteClickListener = deleteClickListener;
-        notifyDataSetChanged();
     }
 
-    public void setFriendRequests(List<FriendRequest> friendRequests) {
-        this.friendRequests = friendRequests;
-        notifyDataSetChanged();
-    }
-
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_friend_request, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        FriendRequest friendRequest = friendRequests.get(position);
+    protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull FriendRequest friendRequest) {
         Glide.with(holder.itemView).load(friendRequest.getSenderImage()).into(holder.imageViewProfile);
         holder.textViewName.setText(friendRequest.getSenderName());
         boolean connected = ServiceUtils.isNetworkConnected(holder.itemView.getContext());
+
         holder.buttonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(connected && acceptClickListener!=null && position != RecyclerView.NO_POSITION){
+                if (connected && acceptClickListener != null) {
                     acceptClickListener.onAcceptClick(friendRequest);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("status", "accepted");
 
-                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status").setValue("accepted");
+                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).updateChildren(map);
                     holder.buttonAccept.setVisibility(View.GONE);
                     holder.buttonDelete.setVisibility(View.GONE);
                     holder.notification.setVisibility(View.VISIBLE);
                     holder.notification.setText("Friend Request Accepted");
-                    notifyItemChanged(position);
                 }
-
-
-
-
-                // handle accept button click event
             }
         });
+
         holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(connected && deleteClickListener!=null && position != RecyclerView.NO_POSITION ){
+                if (connected && deleteClickListener != null) {
                     deleteClickListener.onDeleteClick(friendRequest);
-                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).child("status").setValue("rejected");
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("status", "rejected");
+                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).updateChildren(map);
 
                     holder.buttonAccept.setVisibility(View.GONE);
                     holder.buttonDelete.setVisibility(View.GONE);
                     holder.notification.setVisibility(View.VISIBLE);
                     holder.notification.setText("Friend Request Rejected");
-                    notifyItemChanged(position);
                 }
-
-
-                // handle delete button click event
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return friendRequests.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -425,5 +288,4 @@ class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.Vie
             notification = itemView.findViewById(R.id.notification_background);
         }
     }
-
 }

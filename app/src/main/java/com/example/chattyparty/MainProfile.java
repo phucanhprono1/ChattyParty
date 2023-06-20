@@ -37,6 +37,7 @@ import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 //import com.squareup.picasso.Picasso;
@@ -65,6 +66,8 @@ public class MainProfile extends AppCompatActivity {
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_profile);
+        FriendRequestDB friendRequestDB = new FriendRequestDB(getApplicationContext());
+        friendRequestDB.onCreate(friendRequestDB.getWritableDatabase());
         detectFriendOnline = new CountDownTimer(System.currentTimeMillis(), StaticConfig.TIME_TO_REFRESH) {
             @Override
             public void onTick(long l) {
@@ -78,7 +81,7 @@ public class MainProfile extends AppCompatActivity {
             }
         };
         detectFriendOnline.start();
-        friendRequestDB = new FriendRequestDB(getBaseContext());
+
 
 
         avatar = findViewById(R.id.profile_image);
@@ -108,45 +111,45 @@ public class MainProfile extends AppCompatActivity {
         if(StaticConfig.LIST_FRIEND_REQUEST!=null){
             StaticConfig.LIST_FRIEND_REQUEST.clear();
         }
-       friendRequestRef.child(user.getUid()).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                Gson gson = new Gson();
-                String json = gson.toJson(dataSnapshot.getValue());
-                FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
-
-                Log.d("MainProfile", "onChildAdded: " + friendRequest.getSender() + " " + friendRequest.getReceiver());
-//                friendRequestDB.addFriendRequest(friendRequest);
-                StaticConfig.LIST_FRIEND_REQUEST.add(friendRequest);
-
-                // Kiểm tra và xử lý phần dữ liệu mới nhất
-                if (!friendRequestDB.getAllFriendRequest().contains(friendRequest) && !StaticConfig.LIST_FRIEND_REQUEST.contains(friendRequest)) {
-                    friendRequestDB.addFriendRequest(friendRequest);
-                } else {
-                    friendRequestDB.updateFriendRequest(friendRequest.getSender(), friendRequest.getReceiver());
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                // Xử lý sự kiện khi child đã tồn tại bị thay đổi
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                // Xử lý sự kiện khi child đã tồn tại bị xóa
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                // Xử lý sự kiện khi child đã tồn tại được di chuyển
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Xử lý khi có lỗi xảy ra
-            }
-        });
+        List<FriendRequest> friendRequestsfromdb = friendRequestDB.getAllFriendRequest();
+//       friendRequestRef.child(user.getUid()).addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+//                Gson gson = new Gson();
+//                String json = gson.toJson(dataSnapshot.getValue());
+//                FriendRequest friendRequest = gson.fromJson(json, FriendRequest.class);
+//
+//                Log.d("MainProfile", "onChildAdded: " + friendRequest.getSender() + " " + friendRequest.getReceiver());
+//                StaticConfig.LIST_FRIEND_REQUEST.add(friendRequest);
+//
+//                // Kiểm tra và xử lý phần dữ liệu mới nhất
+//                if (!friendRequestsfromdb.contains(friendRequest) && !StaticConfig.LIST_FRIEND_REQUEST.contains(friendRequest)) {
+//                    friendRequestDB.addFriendRequest(friendRequest);
+//                } else {
+//                    friendRequestDB.updateFriendRequest(friendRequest.getSender(), friendRequest.getReceiver());
+//                }
+//            }
+//
+//            @Override
+//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+//                // Xử lý sự kiện khi child đã tồn tại bị thay đổi
+//            }
+//
+//            @Override
+//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+//                // Xử lý sự kiện khi child đã tồn tại bị xóa
+//            }
+//
+//            @Override
+//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+//                // Xử lý sự kiện khi child đã tồn tại được di chuyển
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Xử lý khi có lỗi xảy ra
+//            }
+//        });
         friendRef.child(StaticConfig.UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -248,6 +251,7 @@ public class MainProfile extends AppCompatActivity {
         LoginManager.getInstance().logOut();
         friendDB.dropDB();
         groupDB.dropDB();
+//        friendRequestDB.dropDB();
         goLoginScreen();
     }
 }
