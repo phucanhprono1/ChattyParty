@@ -99,12 +99,20 @@ public class FriendRequestActivity extends AppCompatActivity  {
             }
 
         });
+
         FirebaseRecyclerOptions<FriendRequest> options = new FirebaseRecyclerOptions.Builder<FriendRequest>()
                 .setQuery(friendRequestRef.child(StaticConfig.UID), FriendRequest.class)
                 .build();
         friendRequestAdapter = new FriendRequestAdapter(options, new FriendRequestAdapter.AcceptClickListener() {
             @Override
             public void onAcceptClick(FriendRequest friendRequest) {
+                if(StaticConfig.LIST_FRIEND_ID.contains(friendRequest.sender)){
+                    Toast.makeText(FriendRequestActivity.this, "You are already friends", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else{
+                    addFriend(friendRequest.sender,true);
+                }
                 // Xử lý sự kiện khi người dùng chấp nhận lời mời
             }
         }, new FriendRequestAdapter.DeleteClickListener() {
@@ -243,7 +251,7 @@ class FriendRequestAdapter extends FirebaseRecyclerAdapter<FriendRequest, Friend
                     Map<String, Object> map = new HashMap<>();
                     map.put("status", "accepted");
 
-                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).updateChildren(map);
+                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).removeValue();
                     holder.buttonAccept.setVisibility(View.GONE);
                     holder.buttonDelete.setVisibility(View.GONE);
                     holder.notification.setVisibility(View.VISIBLE);
@@ -259,7 +267,7 @@ class FriendRequestAdapter extends FirebaseRecyclerAdapter<FriendRequest, Friend
                     deleteClickListener.onDeleteClick(friendRequest);
                     Map<String, Object> map = new HashMap<>();
                     map.put("status", "rejected");
-                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).updateChildren(map);
+                    friendRequestRef.child(StaticConfig.UID).child(friendRequest.getSender()).removeValue();
 
                     holder.buttonAccept.setVisibility(View.GONE);
                     holder.buttonDelete.setVisibility(View.GONE);

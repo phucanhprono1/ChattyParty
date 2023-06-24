@@ -95,6 +95,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             recyclerChat = findViewById(R.id.recyclerChat);
             recyclerChat.setLayoutManager(linearLayoutManager);
             adapter = new ListMessageAdapter(this, conversation, bitmapAvataFriend, bitmapAvataUser);
+
             FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("message/" + roomId).addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -102,7 +103,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         HashMap mapMessage = (HashMap) dataSnapshot.getValue();
                         Message newMessage = new Message();
                         newMessage.idSender = (String) mapMessage.get("idSender");
+                        newMessage.nameSender = (String) mapMessage.get("nameSender");
                         newMessage.idReceiver = (String) mapMessage.get("idReceiver");
+
                         newMessage.text = (String) mapMessage.get("text");
                         newMessage.timestamp = (long) mapMessage.get("timestamp");
                         conversation.getListMessageData().add(newMessage);
@@ -119,7 +122,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                                     // Create the notification payload
                                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
                                     builder.setSmallIcon(R.drawable.ic_notification);
-                                    builder.setContentTitle(StaticConfig.NAME);
+                                    builder.setContentTitle(newMessage.nameSender);
                                     builder.setContentText(newMessage.text);
                                     builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
                                     builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
@@ -204,6 +207,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 Message newMessage = new Message();
                 newMessage.text = content;
                 newMessage.idSender = StaticConfig.UID;
+                newMessage.nameSender = StaticConfig.NAME;
                 newMessage.idReceiver = roomId;
                 newMessage.timestamp = System.currentTimeMillis();
                 FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("message/" + roomId).push().setValue(newMessage);

@@ -98,6 +98,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        friendDB = new FriendDB(getActivity().getBaseContext());
         detectFriendOnline = new CountDownTimer(System.currentTimeMillis(), StaticConfig.TIME_TO_REFRESH) {
             @Override
             public void onTick(long l) {
@@ -110,35 +111,32 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             }
         };
-        friendDB = new FriendDB(getContext());
-        if(connected){
-            if (dataListFriend == null) {
-                dataListFriend = friendDB.getListFriend();
-                if (dataListFriend.getListFriend().size() > 0) {
-                    listFriendID = new ArrayList<>();
+        if (dataListFriend == null) {
+            dataListFriend = friendDB.getListFriend();
+            if (dataListFriend.getListFriend().size() > 0) {
+                listFriendID = new ArrayList<>();
 
-                    for (Friend friend : dataListFriend.getListFriend()) {
-                        listFriendID.add(friend.id);
+                for (Friend friend : dataListFriend.getListFriend()) {
+                    listFriendID.add(friend.id);
+                    StaticConfig.LIST_FRIEND_ID.add(friend.id);
 
-                    }
-                    detectFriendOnline.start();
                 }
-            }
-            if (StaticConfig.LIST_FRIEND_ID == null) {
-                StaticConfig.LIST_FRIEND_ID = new ArrayList<>();
-                getListFriendUId();
-
+                detectFriendOnline.start();
             }
         }
-
         View layout = inflater.inflate(R.layout.fragment_people, container, false);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        recyclerListFrends = layout.findViewById(R.id.recycleListFriend);
-        recyclerListFrends.setLayoutManager(linearLayoutManager);
-        mSwipeRefreshLayout = layout.findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        adapter = new ListFriendsAdapter(getContext(), dataListFriend, this);
-        recyclerListFrends.setAdapter(adapter);
+        if (listFriendID == null) {
+            StaticConfig.LIST_FRIEND_ID = new ArrayList<>();
+            listFriendID = new ArrayList<>();
+            getListFriendUId();
+
+        }
+
+
+
+
+
+
 
 
         deleteFriendReceiver = new BroadcastReceiver() {
@@ -185,7 +183,13 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         getContext().registerReceiver(deleteFriendReceiver, intentFilter);
         Log.d(TAG, "onCreateView: " + StaticConfig.ID_FRIEND_REQ);
 
-
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        recyclerListFrends = layout.findViewById(R.id.recycleListFriend);
+        recyclerListFrends.setLayoutManager(linearLayoutManager);
+        mSwipeRefreshLayout = layout.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        adapter = new ListFriendsAdapter(getContext(), dataListFriend, this);
+        recyclerListFrends.setAdapter(adapter);
 
 
         return layout;
@@ -249,7 +253,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public void onRefresh() {
         if(connected){
             StaticConfig.LIST_FRIEND_ID.clear();
-
+            listFriendID.clear();
             dataListFriend.getListFriend().clear();
             adapter.notifyDataSetChanged();
             friendDB.dropDB();
@@ -494,7 +498,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     Iterator listKey = mapRecord.keySet().iterator();
                     while (listKey.hasNext()) {
                         String key = listKey.next().toString();
-                        StaticConfig.LIST_FRIEND_ID.add(mapRecord.get(key).toString());
+                        listFriendID.add(mapRecord.get(key).toString());
                     }
                     getAllFriendInfo(0);
 
@@ -513,14 +517,14 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * Truy cap bang user lay thong tin id nguoi dung
      */
     private void getAllFriendInfo(final int index) {
-        if (index == StaticConfig.LIST_FRIEND_ID.size()) {
+        if (index == listFriendID.size()) {
             //save list friend
             adapter.notifyDataSetChanged();
 
             mSwipeRefreshLayout.setRefreshing(false);
             detectFriendOnline.start();
         } else {
-            final String id = StaticConfig.LIST_FRIEND_ID.get(index);
+            final String id = listFriendID.get(index);
             userRef.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
