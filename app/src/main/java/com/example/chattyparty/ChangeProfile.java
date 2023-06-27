@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.chattyparty.data.StaticConfig;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -60,24 +61,13 @@ public class ChangeProfile extends AppCompatActivity {
         TextView bio = findViewById(R.id.editBio);
         imgAvt = findViewById(R.id.profile_image);
 
-
-        usersRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                name.setText(snapshot.child("name").getValue(String.class));
-                city.setText(snapshot.child("city").getValue(String.class));
-                country.setText(snapshot.child("country").getValue(String.class));
-                profession.setText(snapshot.child("profession").getValue(String.class));
-                email.setText(snapshot.child("email").getValue(String.class));
-                bio.setText(snapshot.child("bio").getValue(String.class));
-                Glide.with(getApplicationContext()).load(Uri.parse(snapshot.child("avata").getValue(String.class))).override(100,100).into(imgAvt);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        name.setText(StaticConfig.NAME);
+        city.setText(StaticConfig.CITY);
+        country.setText(StaticConfig.COUNTRY);
+        profession.setText(StaticConfig.PROFESSION);
+        email.setText(StaticConfig.EMAIL);
+        bio.setText(StaticConfig.BIO);
+        Glide.with(getApplicationContext()).load(Uri.parse(StaticConfig.AVATA)).override(100,100).into(imgAvt);
 
         storage =FirebaseStorage.getInstance();
         storageRef = storage.getReference();

@@ -255,11 +255,14 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
             StaticConfig.LIST_FRIEND_ID.clear();
             listFriendID.clear();
             dataListFriend.getListFriend().clear();
-            adapter.notifyDataSetChanged();
+
+
             friendDB.dropDB();
             detectFriendOnline.cancel();
 
             getListFriendUId();
+            adapter = new ListFriendsAdapter(getContext(), dataListFriend, this);
+            recyclerListFrends.setAdapter(adapter);
         }
         else {
             Toast.makeText(getContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
@@ -271,7 +274,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     public class FragFriendClickFloatButton implements View.OnClickListener {
         Context context;
-
+        Boolean frienRqSent = false;
         public FragFriendClickFloatButton() {
         }
 
@@ -390,53 +393,41 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
 
         private void addFriendRequest(final String idFriend, Friend userInfo,Friend currUser) {
-            if (idFriend != null) {
+            if (idFriend != null && !frienRqSent) {
 
                 String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 HashMap<String, Object> friendRequestMap = new HashMap<>();
-                userRef.child(currentUserID).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String name = snapshot.child("name").getValue().toString();
-                        friendRequestMap.put("senderName", name);
-                        friendRequestMap.put("senderImage", snapshot.child("avata").getValue().toString());
-                        friendRequestMap.put("sender", currentUserID);
+                friendRequestMap.put("senderName", StaticConfig.NAME);
+                friendRequestMap.put("senderImage", StaticConfig.AVATA);
+                friendRequestMap.put("sender", currentUserID);
 
-                        friendRequestMap.put("receiver", idFriend);
-                        friendRequestMap.put("status", "pending");
-                        friendRequestMap.put("id",currUser.id);
-                        friendRequestMap.put("email",currUser.email);
-                        friendRequestMap.put("avata",currUser.avata);
-                        friendRequestMap.put("name",currUser.name);
-                        friendRequestMap.put("idRoom",currUser.idRoom);
+                friendRequestMap.put("receiver", idFriend);
+                friendRequestMap.put("status", "pending");
+                friendRequestMap.put("id",currUser.id);
+                friendRequestMap.put("email",currUser.email);
+                friendRequestMap.put("avata",currUser.avata);
+                friendRequestMap.put("name",currUser.name);
+                friendRequestMap.put("idRoom",currUser.idRoom);
+                DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
+                friendRequestRef.child(idFriend).child(currentUserID).setValue(friendRequestMap)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    frienRqSent = true;
+                                    Toast.makeText(getContext(), "Friend request sent", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-                        DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference().child("friend_requests");
-                        friendRequestRef.child(idFriend).child(currentUserID).setValue(friendRequestMap)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-//                                        if (task.isSuccessful()) {
-//                                            Toast.makeText(getContext(), "Friend request sent", Toast.LENGTH_SHORT).show();
-//                                        } else {
-//                                            Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
-//                                        }
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getContext(), "Failed to send friend request", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                        // Add a ValueEventListener to the friend request node
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        // Handle onCancelled event
-                    }
-                });
             }
         }
 

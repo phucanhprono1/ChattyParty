@@ -163,12 +163,15 @@ public class MainProfile extends AppCompatActivity {
                     StaticConfig.EMAIL = uemail;
                     String ucity = dataSnapshot.child("city").getValue(String.class);
                     city.setText(ucity);
+                    StaticConfig.CITY = ucity;
                     String ucountry = dataSnapshot.child("country").getValue(String.class);
                     country.setText(ucountry);
                     String uprofession = dataSnapshot.child("profession").getValue(String.class);
                     profession.setText(uprofession);
+                    StaticConfig.PROFESSION = uprofession;
                     String ubio = dataSnapshot.child("bio").getValue(String.class);
                     bio.setText(ubio);
+                    StaticConfig.BIO = ubio;
                     String tmp=dataSnapshot.child("avata").getValue(String.class);
                     StaticConfig.AVATA = tmp;
 //                    Uri avt =  Uri.parse(tmp);

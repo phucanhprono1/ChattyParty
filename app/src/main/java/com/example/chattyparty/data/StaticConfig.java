@@ -19,6 +19,11 @@ public class StaticConfig {
     public static String EMAIL = "";
     public static String NAME = "";
     public static String AVATA = "";
+    public static String CITY = "";
+    public static String COUNTRY = "";
+    public static String PROFESSION = "";
+    public static String BIO = "";
+
     //TODO only use this UID for debug mode
 //    public static String UID = "6kU0SbJPF5QJKZTfvW1BqKolrx22";
     public static String INTENT_KEY_CHAT_FRIEND = "friendname";
