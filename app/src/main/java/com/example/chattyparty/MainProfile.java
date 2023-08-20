@@ -4,11 +4,19 @@ package com.example.chattyparty;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -60,6 +68,15 @@ public class MainProfile extends AppCompatActivity {
     FriendRequestDB friendRequestDB;
     DatabaseReference friendRequestRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend_requests");
     DatabaseReference friendRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("friend");
+    private BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String title = intent.getStringExtra("title");
+            String message = intent.getStringExtra("message");
+
+            // Display the notification in the app UI or take other actions
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -188,7 +205,6 @@ public class MainProfile extends AppCompatActivity {
             }
         });
         //}
-
         friend_request = findViewById(R.id.btn_friend_requests);
         friend_request.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,13 +220,52 @@ public class MainProfile extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check and request notification permission
+        checkNotificationPermission();
+        IntentFilter filter = new IntentFilter("com.example.NOTIFICATION_RECEIVED");
+        registerReceiver(notificationReceiver, filter);
+        // Rest of your onResume code
+        // ...
+    }
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+            boolean isOpened = manager.areNotificationsEnabled();
+            if (!isOpened) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Notification Permission");
+                builder.setMessage("Please enable notification permission for this app to receive chat notifications.");
+                builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Open device settings
+                        Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                        intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                        startActivity(intent);
+                    }
+                });
+                builder.setNegativeButton("Cancel", null);
+                builder.show();
+            }
+        }
+    }
     private void goLoginScreen() {
         Intent intent = new Intent(this, LoginOptionActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(intent);
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
 
+        // Unregister the BroadcastReceiver
+        unregisterReceiver(notificationReceiver);
+    }
     public void logout(View view) {
         FirebaseAuth.getInstance().signOut();
         LoginManager.getInstance().logOut();

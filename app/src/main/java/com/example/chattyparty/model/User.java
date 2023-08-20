@@ -7,6 +7,15 @@ public class User {
     public String email;
     public String avata;
     public String id;
+    public String fcmToken;
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 
     public Message message;
     public Status status;

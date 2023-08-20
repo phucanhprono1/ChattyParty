@@ -8,7 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -34,6 +36,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Arrays;
 
@@ -91,13 +94,18 @@ public class LoginOptionActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
     }
 
     private void goMainScreen() {
         Intent intent = new Intent(this, MainProfile.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+    private void saveOAuthToken(String token) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("oauth_token", token);
+        editor.apply();
     }
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
@@ -111,6 +119,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            saveOAuthToken(token.getToken());
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -123,28 +132,43 @@ public class LoginOptionActivity extends AppCompatActivity {
                 });
     }
     private void updateUI(FirebaseUser user) {
-        Intent intent = new Intent( LoginOptionActivity.this, MainProfile.class);
+        Intent intent = new Intent(LoginOptionActivity.this, MainProfile.class);
         DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("users");
         String userId = mAuth.getCurrentUser().getUid();
-        StaticConfig.UID = user.getUid();
 
         us = new User(userId, user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
-//        us.id=userId;
-        usersRef.child(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(!snapshot.exists()){
-                    usersRef.child(userId).setValue(us);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+        // Lấy FCM token
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (task.isSuccessful()) {
+                            String fcmToken = task.getResult();
+                            us.setFcmToken(fcmToken); // Lưu FCM token vào đối tượng User
+                        }
 
-            }
-        });
+                        // Kiểm tra xem tài khoản đã tồn tại hay chưa
+                        usersRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (!snapshot.exists()) {
+                                    usersRef.child(userId).setValue(us);
+                                } else {
+                                    // Tài khoản đã tồn tại, cập nhật FCM token
+                                    usersRef.child(userId).child("fcmToken").setValue(us.getFcmToken());
+                                }
+                            }
 
-        startActivity(intent);
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Xử lý lỗi nếu cần
+                            }
+                        });
+
+                        startActivity(intent);
+                    }
+                });
     }
 
     @Override
@@ -166,4 +190,5 @@ public class LoginOptionActivity extends AppCompatActivity {
         super.onStop();
         mAuth.removeAuthStateListener(firebaseAuthListener);
     }
+
 }

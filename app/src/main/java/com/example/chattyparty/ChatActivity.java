@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.os.Build;
@@ -19,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -29,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.chattyparty.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -42,14 +45,26 @@ import com.example.chattyparty.model.Conversation;
 import com.example.chattyparty.model.Message;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import android.Manifest;
+
+import org.json.JSONObject;
 
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
+    public static final String TAG = "ChatActivity";
     private RecyclerView recyclerChat;
     public static final int VIEW_TYPE_USER_MESSAGE = 0;
     public static final int VIEW_TYPE_FRIEND_MESSAGE = 1;
@@ -63,7 +78,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public static HashMap<String, String> bitmapAvataFriend;
     public String bitmapAvataUser;
 
-
+    public SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,15 +86,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         Intent intentData = getIntent();
         Log.d(TAG, "onCreate: " + StaticConfig.AVATA);
         idFriend = intentData.getCharSequenceArrayListExtra(StaticConfig.INTENT_KEY_CHAT_ID);
+        Log.d(TAG, "onCreate: " + idFriend);
         roomId = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_ROOM_ID);
         String nameFriend = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_FRIEND);
+        Log.d(TAG, "onCreate: " + nameFriend);
         String avataFriend = intentData.getStringExtra(StaticConfig.INTENT_KEY_CHAT_AVATA);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
 //        String deviceToken = FirebaseInstanceId.getInstance().getToken();
         conversation = new Conversation();
         btnSend = (ImageView) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(this);
-
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String avtUser = StaticConfig.AVATA;
         if (!avtUser.equals(StaticConfig.AVATA)) {
 
@@ -118,37 +135,37 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                                 ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
                             }
                             else {
-                                if (!newMessage.idSender.equals(currentUserId)) {
-                                    // Create the notification payload
-                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
-                                    builder.setSmallIcon(R.drawable.ic_notification);
-                                    builder.setContentTitle(newMessage.nameSender);
-                                    builder.setContentText(newMessage.text);
-                                    builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                                    builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-
-                                    // Create the notification channel (required for Android Oreo and above)
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
-                                        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                                        notificationManager.createNotificationChannel(channel);
-                                    }
-
-                                    // Send the notification
-                                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-                                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                                        // TODO: Consider calling
-                                        //    ActivityCompat#requestPermissions
-                                        // here to request the missing permissions, and then overriding
-                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                        //                                          int[] grantResults)
-                                        // to handle the case where the user grants the permission. See the documentation
-                                        // for ActivityCompat#requestPermissions for more details.
-                                        return;
-                                    }
-                                    notificationManager.notify(0, builder.build());
-
-                                }
+//                                if (!newMessage.idSender.equals(currentUserId)) {
+//                                    // Create the notification payload
+//                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
+//                                    builder.setSmallIcon(R.drawable.ic_notification);
+//                                    builder.setContentTitle(newMessage.nameSender);
+//                                    builder.setContentText(newMessage.text);
+//                                    builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+//                                    builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+//
+//                                    // Create the notification channel (required for Android Oreo and above)
+//                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                                        NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
+//                                        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//                                        notificationManager.createNotificationChannel(channel);
+//                                    }
+//
+//                                    // Send the notification
+//                                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+//                                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+//                                        // TODO: Consider calling
+//                                        //    ActivityCompat#requestPermissions
+//                                        // here to request the missing permissions, and then overriding
+//                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//                                        //                                          int[] grantResults)
+//                                        // to handle the case where the user grants the permission. See the documentation
+//                                        // for ActivityCompat#requestPermissions for more details.
+//                                        return;
+//                                    }
+//                                    notificationManager.notify(0, builder.build());
+//
+//                                }
                             }
                         }
 
@@ -216,40 +233,103 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
                     }
                     else {
-                        if (!newMessage.idSender.equals(StaticConfig.UID)) {
-                            // Create the notification payload
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default");
-                            builder.setSmallIcon(R.drawable.ic_notification);
-                            builder.setContentTitle(StaticConfig.NAME);
-                            builder.setContentText(content);
-                            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-
-                            // Create the notification channel (required for Android Oreo and above)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                NotificationChannel channel = new NotificationChannel("default", "Default", NotificationManager.IMPORTANCE_DEFAULT);
-                                NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                                notificationManager.createNotificationChannel(channel);
-                            }
-
-                            // Send the notification
-                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                                // TODO: Consider calling
-                                //    ActivityCompat#requestPermissions
-                                // here to request the missing permissions, and then overriding
-                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                //                                          int[] grantResults)
-                                // to handle the case where the user grants the permission. See the documentation
-                                // for ActivityCompat#requestPermissions for more details.
-                                return;
-                            }
-                            notificationManager.notify(0, builder.build());
-
+                        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        for( CharSequence id : idFriend) {
+                            String receiverUserId = id.toString();
+                            Log.d("FCM", receiverUserId);// Lấy ID người gửi tin nhắn
+                            String notificationMessage = newMessage.text; // Nội dung tin nhắn
+                            // Gọi phương thức để gửi thông báo đẩy
+                            sendPushNotification(receiverUserId, notificationMessage);
                         }
                     }
                 }
             }
+        }
+    }
+    private void sendPushNotification(String receiverUserId, String notificationMessage) {
+        Log.d("FCM", "Preparing to send notification with token: " + receiverUserId+" "+notificationMessage);
+        Log.d("FCM", "Preparing to send notification");
+        // Lấy FCM token của người nhận tin nhắn
+        DatabaseReference usersRef = FirebaseDatabase.getInstance("https://chattyparty-7d883-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                .getReference("users").child(receiverUserId);
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    User receiverUser = dataSnapshot.getValue(User.class);
+                    String fcmToken = receiverUser.getFcmToken();
+
+                    // Gửi thông báo đẩy bằng FCM
+                    if (fcmToken != null && !fcmToken.isEmpty()) {
+                        Log.d("FCM", "Sending notification"+fcmToken);
+                        sendNotificationUsingFCM(fcmToken, notificationMessage);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle error
+            }
+        });
+    }
+
+    private void sendNotificationUsingFCM(String fcmToken, String notificationMessage) {
+        // Gửi thông báo đẩy bằng FCM
+        Log.d("FCM", "Preparing to send notification with token: " + fcmToken+" "+notificationMessage);
+        try {
+//            JSONObject notification = new JSONObject();
+//            notification.put("title", StaticConfig.NAME); // Tiêu đề thông báo
+//            notification.put("body", notificationMessage); // Nội dung thông báo
+//
+//            JSONObject message = new JSONObject();
+//            message.put("token", fcmToken); // FCM token của người nhận
+//            message.put("notification", notification);
+//            JSONObject sending = new JSONObject();
+//            sending.put("message", message);
+            JSONObject jsonObject  = new JSONObject();
+
+            JSONObject notificationObj = new JSONObject();
+            notificationObj.put("title",StaticConfig.NAME);
+            notificationObj.put("body",notificationMessage);
+
+            JSONObject dataObj = new JSONObject();
+
+
+            jsonObject.put("notification",notificationObj);
+            jsonObject.put("to",fcmToken);
+            // Tạo kết nối HTTP để gửi thông báo đẩy
+            OkHttpClient client = new OkHttpClient();
+            MediaType JSON = MediaType.get("application/json; charset=utf-8");
+            Log.d("FCM", "Preparing to send notification with token: " + fcmToken+" "+jsonObject.toString());
+            //RequestBody body = RequestBody.create(JSON,sending.toString());
+//            Request request = new Request.Builder()
+//                    .url("https://fcm.googleapis.com/v1/projects/chattyparty-7d883/messages:send")
+//                    .post(body)
+//                    .addHeader("Authorization", "Bearer ya29.a0AfB_byDZuHXk5Ow5QN2SfBGUr2dIdS8cUbPEcVAuo3aMV9GPI40r8IoXNTXDJ74C8AMLZJrx1R3xLPuRQIsl8i-kPH_XnFzHpwUXCOyT23ESgD86JDy3LdhmYRZxjHGxef3YqrWVIzOhMrAM3snULoyLuGeEBBDyr88B5gaCgYKAQsSARASFQHsvYlsowK03wNAsul0lnBu_GHJ3w0173") // Thay YOUR_SERVER_KEY bằng server key của bạn từ Firebase Console
+//                    .build();
+            RequestBody body = RequestBody.create(JSON,jsonObject.toString());
+            Request request = new Request.Builder()
+                    .url("https://fcm.googleapis.com/fcm/send")
+                    .post(body)
+                    .addHeader("Authorization", "Bearer AAAADPhjAMY:APA91bEwZVIVDganFUpe4eQqkhwP8oY8c8klxwe5JSH9jKb0UZBxjh7Y5AiKaIMZZTNrAEc-GK07fDO-tI1kHGxhjfZoUmYhp6q_ZoOhzfA3IeVdph3eaudoQng2XjNZrWv63IQ7gINs") // Thay YOUR_SERVER_KEY bằng server key của bạn từ Firebase Console
+                    .build();
+            // Thực hiện request để gửi thông báo đẩy
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    // Handle error
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.d("FCM", response.body().string());
+                }
+            }
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
