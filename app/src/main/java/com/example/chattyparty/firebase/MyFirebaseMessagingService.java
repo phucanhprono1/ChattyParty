@@ -2,6 +2,8 @@ package com.example.chattyparty.firebase;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -38,8 +40,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void showNotification(String title, String message) {
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "foreground_channel_id")
+        NotificationChannel channel = null;
+        final String CHANNEL_ID = "foreground_channel_id";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            channel = new NotificationChannel(CHANNEL_ID, "Foreground Channel", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("This is the foreground channel for the app");
+        }
+        NotificationManager notificationManager = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            notificationManager = getSystemService(NotificationManager.class);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -47,7 +61,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -58,42 +72,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        notificationManager.notify(1, notificationBuilder.build());
+        notificationManagerCompat.notify(1, notificationBuilder.build());
     }
-//    private void showNotification(String title, String message) {
-//        Intent intent = new Intent(this, MainActivity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-//
-//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "foreground_channel_id")
-//                .setSmallIcon(R.drawable.ic_notification)
-//                .setContentTitle(title)
-//                .setContentText(message)
-//                .setPriority(NotificationCompat.PRIORITY_HIGH)
-//                .setContentIntent(pendingIntent)
-//                .setAutoCancel(true);
-//
-//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            // Hiển thị thông báo trong foreground
-//            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-//                // TODO: Handle permission request
-//                return;
-//            }
-//            notificationManager.notify(1, notificationBuilder.build());
-//
-//            // Hiển thị thông báo trong background
-//            NotificationCompat.Builder backgroundNotificationBuilder = new NotificationCompat.Builder(this, "background_channel_id")
-//                    .setSmallIcon(R.drawable.ic_notification)
-//                    .setContentTitle(title)
-//                    .setContentText(message)
-//                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//                    .setContentIntent(pendingIntent)
-//                    .setAutoCancel(true);
-//            NotificationManagerCompat.from(this).notify(2, backgroundNotificationBuilder.build());
-//        } else {
-//            notificationManager.notify(1, notificationBuilder.build());
-//        }
-//    }
+
 }
 
